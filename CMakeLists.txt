@@ -19,7 +19,7 @@ macro(find_commonlib_path)
 	if(CommonLibName AND NOT ${CommonLibName} STREQUAL "")
 		# Check extern
 		find_path(CommonLibPath
-			include/REL/Relocation.h
+			CommonLibF4/include/REL/Relocation.h
 			PATHS external/${CommonLibName}
 			extern/${CommonLibName})
 
@@ -47,7 +47,7 @@ endif()
 find_commonlib_path()
 message(
 	STATUS
-	"Building ${NAME} ${VERSION} for ${SkyrimVersion} at ${FalloutPath} with ${CommonLibName} at ${CommonLibPath}."
+	"Building ${NAME} ${VERSION} for ${FalloutVersion} at ${FalloutPath} with ${CommonLibName} at ${CommonLibPath}."
 )
 
 if(DEFINED VCPKG_ROOT)

@@ -8,10 +8,17 @@
     "boost-stl-interfaces",
     "robin-hood-hashing",
     "rsm-binary-io",
+    "rsm-mmio",
     "detours",
+    "srell",
     "simpleini",
     "spdlog",
-    "xbyak"
+    "xbyak",
+    "args",
+    "frozen",
+    "nowide",
+    "catch2",
+    "rapidcsv"
   ],
-  "builtin-baseline": "bd1ef2df46303989eeb048eb7aa9b816aa46365e"
+  "builtin-baseline": "b4a3d89125e45bc8f80fb94bef9761d4f4e14fb9"
 }
