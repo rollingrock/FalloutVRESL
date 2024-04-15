@@ -4,7 +4,6 @@ set(VERSION 1.0.0)
 
 # ---- Options ----
 option(COPY_BUILD "Copy the build output to the Fallout directory." FALSE)
-option(BUILD_SKYRIMVR "Build for Fallout VR" ON)
 option(BACKWARDS_COMPATIBLE "Use TESDataHandler for inheritance" ON)
 option(PACKAGE "Package into .7z" OFF)
 
@@ -223,6 +222,8 @@ if(MSVC)
 
 		/W4 # Warning level
 		/WX # Warning level (warnings are errors)
+
+		/wd4702
 
 		"$<$<CONFIG:DEBUG>:>"
 		"$<$<CONFIG:RELEASE>:/Zc:inline;/JMC-;/Ob3>"

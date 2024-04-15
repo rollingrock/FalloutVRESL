@@ -2,8 +2,8 @@
 
 #define NOMMNOSOUND
 
-#include "RE/Skyrim.h"
-#include "SKSE/SKSE.h"
+#include "RE/Fallout.h"
+#include "F4SE/F4SE.h"
 
 #pragma warning(disable: 4100)
 
@@ -14,13 +14,13 @@
 #include <xbyak/xbyak.h>
 #pragma warning(pop)
 
-namespace logger = SKSE::log;
+namespace logger = F4SE::log;
 
 using namespace std::literals;
 
 namespace pstl
 {
-	using namespace SKSE::stl;
+	using namespace F4SE::stl;
 
 	void asm_replace(std::uintptr_t a_from, std::size_t a_size, std::uintptr_t a_to);
 
@@ -33,8 +33,8 @@ namespace pstl
 	template <class T>
 	void write_thunk_call(std::uintptr_t a_src)
 	{
-		auto& trampoline = SKSE::GetTrampoline();
-		SKSE::AllocTrampoline(14);
+		auto& trampoline = F4SE::GetTrampoline();
+		F4SE::AllocTrampoline(14);
 
 		T::func = trampoline.write_call<5>(a_src, T::thunk);
 	}
