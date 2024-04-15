@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.20)
-set(NAME "skyrimvresl")
-set(VERSION 1.2.0)
+set(NAME "falloutvresl")
+set(VERSION 1.0.0)
 
 # ---- Options ----
-option(COPY_BUILD "Copy the build output to the Skyrim directory." FALSE)
-option(BUILD_SKYRIMVR "Build for Skyrim VR" ON)
+option(COPY_BUILD "Copy the build output to the Fallout directory." FALSE)
+option(BUILD_SKYRIMVR "Build for Fallout VR" ON)
 option(BACKWARDS_COMPATIBLE "Use TESDataHandler for inheritance" ON)
 option(PACKAGE "Package into .7z" OFF)
 
@@ -33,12 +33,12 @@ endmacro()
 
 set_from_environment(VCPKG_ROOT)
 
-add_compile_definitions(SKYRIMVR)
+add_compile_definitions(FALLOUTVR)
 add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
-set(CommonLibName "CommonLibVR")
-set_from_environment(SkyrimVRPath)
-set(SkyrimPath ${SkyrimVRPath})
-set(SkyrimVersion "Skyrim VR")
+set(CommonLibName "CommonLibF4")
+set_from_environment(FalloutVRPath)
+set(FalloutPath ${FalloutVRPath})
+set(FalloutVersion "Fallout VR")
 
 if(BACKWARDS_COMPATIBLE)
 	add_compile_definitions(BACKWARDS_COMPATIBLE)
@@ -47,7 +47,7 @@ endif()
 find_commonlib_path()
 message(
 	STATUS
-	"Building ${NAME} ${VERSION} for ${SkyrimVersion} at ${SkyrimPath} with ${CommonLibName} at ${CommonLibPath}."
+	"Building ${NAME} ${VERSION} for ${SkyrimVersion} at ${FalloutPath} with ${CommonLibName} at ${CommonLibPath}."
 )
 
 if(DEFINED VCPKG_ROOT)
@@ -91,7 +91,7 @@ endif()
 
 # ---- Globals ----
 add_compile_definitions(
-	SKSE_SUPPORT_XBYAK
+	F4SE_SUPPORT_XBYAK
 )
 
 if(MSVC)
@@ -243,18 +243,18 @@ endif()
 
 # ---- Post build ----
 if(COPY_BUILD)
-	if(DEFINED SkyrimPath)
-		string(REGEX REPLACE "[/\\][Dd][Aa][Tt][Aa][/\\]?$" "" SkyrimPath "${SkyrimPath}") # remove " /data " if exists; cmake regex doesn't have /i
+	if(DEFINED FalloutPath)
+		string(REGEX REPLACE "[/\\][Dd][Aa][Tt][Aa][/\\]?$" "" FalloutPath "${FalloutPath}") # remove " /data " if exists; cmake regex doesn't have /i
 		add_custom_command(
 			TARGET ${PROJECT_NAME}
 			POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> ${SkyrimPath}/Data/SKSE/Plugins/
-			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_PDB_FILE:${PROJECT_NAME}> ${SkyrimPath}/Data/SKSE/Plugins/
+			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> ${FalloutPath}/Data/F4SE/Plugins/
+			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_PDB_FILE:${PROJECT_NAME}> ${FalloutPath}/Data/F4SE/Plugins/
 		)
 	else()
 		message(
 			WARNING
-			"Variable ${SkyrimPath} is not defined. Skipping post-build copy command."
+			"Variable ${FalloutPath} is not defined. Skipping post-build copy command."
 		)
 	endif()
 endif()
@@ -264,17 +264,17 @@ if(PACKAGE)
 	set(ZIP_DIR "${CMAKE_CURRENT_BINARY_DIR}/zip")
 	add_custom_target(build-time-make-directory ALL
 		COMMAND ${CMAKE_COMMAND} -E make_directory "${ZIP_DIR}"
-		"${ZIP_DIR}/SKSE/Plugins/"
+		"${ZIP_DIR}/F4SE/Plugins/"
 	)
 
 	message("Will copy mod into ${ZIP_DIR}.")
 	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> "${ZIP_DIR}/SKSE/Plugins/"
+		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> "${ZIP_DIR}/F4SE/Plugins/"
 	)
 
 	if(${CMAKE_BUILD_TYPE} STREQUAL Debug OR ${CMAKE_BUILD_TYPE} STREQUAL RelWithDebInfo OR ${CMAKE_BUILD_TYPE} STREQUAL Release)
 		add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_PDB_FILE:${PROJECT_NAME}> "${ZIP_DIR}/SKSE/Plugins/")
+			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_PDB_FILE:${PROJECT_NAME}> "${ZIP_DIR}/F4SE/Plugins/")
 	endif()
 
 	set(TARGET_ZIP "${PROJECT_NAME}_${PROJECT_VERSION}.7z")

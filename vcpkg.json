@@ -1,8 +1,8 @@
 {
-  "name": "skyrimvresl",
-  "version-string": "1.2.0",
-  "description": "Adds ESL support to SkyrimVR.",
-  "homepage": "https://github.com/Nightfallstorm/SkyrimVRESL",
+  "name": "falloutvresl",
+  "version-string": "1.0.0",
+  "description": "Adds ESL support to FalloutVR.",
+  "homepage": "https://github.com/rollingrock/FalloutVRESL",
   "license": "GPL-3.0",
   "dependencies": [
     "boost-stl-interfaces",

@@ -45,7 +45,7 @@
     {
       "binaryDir": "${sourceDir}/buildvr",
       "cacheVariables": {
-        "BUILD_SKYRIMVR": true
+        "BUILD_FALLOUTVR": true
       },
       "hidden": true,
       "name": "vr"
