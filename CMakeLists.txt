@@ -224,6 +224,13 @@ if(MSVC)
 		/WX # Warning level (warnings are errors)
 
 		/wd4702
+		/wd4267
+		/wd4456
+		/wd4189
+		/wd4244
+		/wd4834
+		/wd4189
+		/wd4505
 
 		"$<$<CONFIG:DEBUG>:>"
 		"$<$<CONFIG:RELEASE>:/Zc:inline;/JMC-;/Ob3>"

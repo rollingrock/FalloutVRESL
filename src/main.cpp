@@ -1,13 +1,13 @@
-//#include "DataHandler.h"
+#include "DataHandler.h"
 //#include "Papyrus.h"
-//#include "Settings.h"
+#include "Settings.h"
 //#include "SkyrimVRESLAPI.h"
-//#include "eslhooks.h"
-//#include "hooks.h"
+#include "eslhooks.h"
+#include "hooks.h"
 //#include "saveloadhooks.h"
-//#include "sksevrhooks.h"
-//#include "startuphooks.h"
-//#include "tesfilehooks.h"
+#include "sksevrhooks.h"
+#include "startuphooks.h"
+#include "tesfilehooks.h"
 
 int GetMaxStdio()
 {
@@ -37,45 +37,45 @@ void F4SEAPI MessageHandler(F4SE::MessagingInterface::Message* a_message)
 			//	logger::info("Unable to register SKSE listener");
 
 			if (GetMaxStdio() < 2048)
-				logger::warn("Required Engine Fixes VR MaxStdio patch not detected. SkyrimVR will hang if you have more than {} plugins installed in /Data--even if inactive!", GetMaxStdio());
+				logger::warn("Required Buffout MaxStdio patch not detected. FalloutVR will hang if you have more than {} plugins installed in /Data--even if inactive!", GetMaxStdio());
 			break;
 		}
 	case F4SE::MessagingInterface::kGameDataReady:
 		{
-			//logger::debug("kDataLoaded: Printing files");
-			//auto handler = DataHandler::GetSingleton();
-			//for (auto file : handler->files) {
-			//	logger::debug("file {} recordFlags: {:x} index {:x} isOverlay: {}",
-			//		std::string(file->fileName),
-			//		file->recordFlags.underlying(),
-			//		file->compileIndex,
-			//		isOverlay(file));
-			//}
+			logger::debug("kDataLoaded: Printing files");
+			auto handler = DataHandler::GetSingleton();
+			for (auto file : handler->files) {
+				logger::debug("file {} recordFlags: {:x} index {:x} isOverlay: {}",
+					std::string(file->filename),
+					file->flags.underlying(),
+					file->compileIndex,
+					isOverlay(file));
+			}
 
-			//logger::debug("kDataLoaded: Printing loaded files");
-			//for (auto file : handler->compiledFileCollection.files) {
-			//	logger::debug("Regular file {} recordFlags: {:x} index {:x}",
-			//		std::string(file->fileName),
-			//		file->recordFlags.underlying(),
-			//		file->compileIndex);
-			//}
+			logger::debug("kDataLoaded: Printing loaded files");
+			for (auto file : handler->compiledFileCollection.files) {
+				logger::debug("Regular file {} recordFlags: {:x} index {:x}",
+					std::string(file->filename),
+					file->flags.underlying(),
+					file->compileIndex);
+			}
 
-			//for (auto file : handler->compiledFileCollection.smallFiles) {
-			//	logger::debug("Small file {} recordFlags: {:x} index {:x}",
-			//		std::string(file->fileName),
-			//		file->recordFlags.underlying(),
-			//		file->smallFileCompileIndex);
-			//}
+			for (auto file : handler->compiledFileCollection.smallFiles) {
+				logger::debug("Small file {} recordFlags: {:x} index {:x}",
+					std::string(file->filename),
+					file->flags.underlying(),
+					file->smallFileCompileIndex);
+			}
 
-			//auto [formMap, lock] = RE::TESForm::GetAllForms();
-			//lock.get().LockForRead();
-			//for (auto& [formID, form] : *formMap) {
-			//	if (formID >> 24 == 0xFE) {
-			//		logger::debug("ESL form (map ID){:x} (real ID){:x} from file {} found", formID, form->formID, std::string(form->GetFile()->fileName));
-			//	}
-			//}
-			//lock.get().UnlockForRead();
-			//TestGetCompiledFileCollectionExtern();
+			auto [formMap, lock] = RE::TESForm::GetAllForms();
+			lock.get().lock_read();
+			for (auto& [formID, form] : *formMap) {
+				if (formID >> 24 == 0xFE) {
+					logger::debug("ESL form (map ID){:x} (real ID){:x} from file {} found", formID, form->formID, std::string(form->GetFile()->filename));
+				}
+			}
+			lock.get().unlock_read();
+			TestGetCompiledFileCollectionExtern();
 		}
 	default:
 		break;
@@ -115,9 +115,9 @@ void InitializeLog()
 
 	auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
 
-	//auto settings = Settings::GetSingleton();
-	//log->set_level(settings->settings.logLevel);
-	//log->flush_on(settings->settings.flushLevel);
+	auto settings = Settings::GetSingleton();
+	log->set_level(settings->settings.logLevel);
+	log->flush_on(settings->settings.flushLevel);
 
 	spdlog::set_default_logger(std::move(log));
 	spdlog::set_pattern("[%H:%M:%S:%e] %v"s);
@@ -127,11 +127,11 @@ void InitializeLog()
 
 extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_skse)
 {
-	//try {
-	//	Settings::GetSingleton()->Load();
-	//} catch (...) {
-	//	logger::error("Exception caught when loading settings! Default settings will be used");
-	//}
+	try {
+		Settings::GetSingleton()->Load();
+	} catch (...) {
+		logger::error("Exception caught when loading settings! Default settings will be used");
+	}
 	InitializeLog();
 	logger::info("loaded plugin");
 
@@ -142,7 +142,7 @@ extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_s
 	//startuphooks::InstallHooks();
 	//saveloadhooks::InstallHooks();
 	//eslhooks::InstallHooks();
-	//DataHandler::InstallHooks();
+	DataHandler::InstallHooks();
 	//SaveLoadGame::InstallHooks();
 	//SKSEVRHooks::Install(a_skse->SKSEVersion());
 	logger::info("finish hooks");
