@@ -8,4 +8,6 @@ set(headers ${headers}
 	src/tesfilehooks.h
 	src/sksevrhooks.h
 	src/startuphooks.h
+	src/saveloadhooks.h
+	src/SaveLoadGame.h
 )

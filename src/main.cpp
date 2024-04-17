@@ -4,7 +4,7 @@
 //#include "SkyrimVRESLAPI.h"
 #include "eslhooks.h"
 #include "hooks.h"
-//#include "saveloadhooks.h"
+#include "saveloadhooks.h"
 #include "sksevrhooks.h"
 #include "startuphooks.h"
 #include "tesfilehooks.h"
@@ -26,7 +26,7 @@ int GetMaxStdio()
 void F4SEAPI MessageHandler(F4SE::MessagingInterface::Message* a_message)
 {
 	switch (a_message->type) {
-	case F4SE::MessagingInterface::kPostLoad:
+	case F4SE::MessagingInterface::kPostPostLoad:
 		{  // Called after all plugins have finished running
 			// SKSEPlugin_Load.
 			// It is now safe to do multithreaded operations, or operations against other plugins.
@@ -36,46 +36,48 @@ void F4SEAPI MessageHandler(F4SE::MessagingInterface::Message* a_message)
 			//else
 			//	logger::info("Unable to register SKSE listener");
 
+			logger::info("kPostPostLoad");
 			if (GetMaxStdio() < 2048)
 				logger::warn("Required Buffout MaxStdio patch not detected. FalloutVR will hang if you have more than {} plugins installed in /Data--even if inactive!", GetMaxStdio());
 			break;
 		}
-	case F4SE::MessagingInterface::kGameDataReady:
+	case F4SE::MessagingInterface::kGameLoaded:
 		{
-			logger::debug("kDataLoaded: Printing files");
+			logger::info("kGameLoaded: Printing files");
 			auto handler = DataHandler::GetSingleton();
 			for (auto file : handler->files) {
-				logger::debug("file {} recordFlags: {:x} index {:x} isOverlay: {}",
+				logger::info("file {} recordFlags: {:x} index {:x} isOverlay: {}",
 					std::string(file->filename),
 					file->flags.underlying(),
 					file->compileIndex,
 					isOverlay(file));
 			}
 
-			logger::debug("kDataLoaded: Printing loaded files");
-			for (auto file : handler->compiledFileCollection.files) {
-				logger::debug("Regular file {} recordFlags: {:x} index {:x}",
+			logger::info("kGameLoaded: Printing loaded files");
+			for (std::uint32_t i = 0; i < handler->loadedModCount; i++) {
+				auto file = handler->loadedMods[i];
+				logger::info("Regular file {} recordFlags: {:x} index {:x}",
 					std::string(file->filename),
 					file->flags.underlying(),
 					file->compileIndex);
 			}
 
-			for (auto file : handler->compiledFileCollection.smallFiles) {
-				logger::debug("Small file {} recordFlags: {:x} index {:x}",
-					std::string(file->filename),
-					file->flags.underlying(),
-					file->smallFileCompileIndex);
-			}
+			//for (auto file : handler->compiledFileCollection.smallFiles) {
+			//	logger::debug("Small file {} recordFlags: {:x} index {:x}",
+			//		std::string(file->filename),
+			//		file->flags.underlying(),
+			//		file->smallFileCompileIndex);
+			//}
 
 			auto [formMap, lock] = RE::TESForm::GetAllForms();
 			lock.get().lock_read();
 			for (auto& [formID, form] : *formMap) {
 				if (formID >> 24 == 0xFE) {
-					logger::debug("ESL form (map ID){:x} (real ID){:x} from file {} found", formID, form->formID, std::string(form->GetFile()->filename));
+					logger::info("ESL form (map ID){:x} (real ID){:x} from file {} found", formID, form->formID, std::string(form->GetFile()->filename));
 				}
 			}
 			lock.get().unlock_read();
-			TestGetCompiledFileCollectionExtern();
+			//TestGetCompiledFileCollectionExtern();
 		}
 	default:
 		break;
@@ -153,12 +155,12 @@ extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_s
 	return true;
 }
 
-/// @brief Get the SSE compatible TESFileCollection for SkyrimVR using GetProcAddress.
-/// This should be called after kDataLoaded to ensure it's been populated.
-/// This is not intended to be a stable API for other SKSE plugins. Use SkyrimVRESLAPI instead.
-/// @return Pointer to TESFileCollection CompiledFileCollection.
-//extern "C" DLLEXPORT const RE::TESFileCollection* APIENTRY GetCompiledFileCollectionExtern()
-//{
-//	const auto& dh = DataHandler::GetSingleton();
-//	return &(dh->compiledFileCollection);
-//}
+ //@brief Get the SSE compatible TESFileCollection for SkyrimVR using GetProcAddress.
+ //This should be called after kDataLoaded to ensure it's been populated.
+ //This is not intended to be a stable API for other SKSE plugins. Use SkyrimVRESLAPI instead.
+ //@return Pointer to TESFileCollection CompiledFileCollection.
+extern "C" DLLEXPORT const RE::TESFileCollection* APIENTRY GetCompiledFileCollectionExtern()
+{
+	const auto& dh = DataHandler::GetSingleton();
+	return &(dh->compiledFileCollection);
+}

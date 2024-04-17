@@ -33,64 +33,47 @@ static inline bool isOverlay(RE::TESFile* a_file)
 	return isOverlay != 0;
 }
 
-class DataHandler : public
-#ifndef BACKWARDS_COMPATIBLE
-					BSTSingletonSDM<DataHandler>
-#else
-					TESDataHandler
-#endif
+class DataHandler : 
+		public BSTEventSource<BGSHotloadCompletedEvent>,  // 0000
+		public BSTSingletonSDM<DataHandler>            // 0058
+
 {
 public:
 	static DataHandler* GetSingleton();
 	static void InstallHooks();
 
-#ifndef BACKWARDS_COMPATIBLE
 	const RE::TESFile* LookupModByName(std::string_view a_modName);
 	// members
-	std::uint8_t pad001;                                               // 001
-	std::uint16_t pad002;                                              // 002
-	std::uint32_t pad004;                                              // 004
-	TESObjectList* objectList;                                         // 008
-	BSTArray<TESForm*> formArrays[stl::to_underlying(FormType::Max)];  // 010
-	TESRegionList* regionList;                                         // D00
-	NiTPrimitiveArray<TESObjectCELL*> interiorCells;                   // D08
-	NiTPrimitiveArray<BGSAddonNode*> addonNodes;                       // D20
-	NiTList<TESForm*> badForms;                                        // D38
-	FormID nextID;                                                     // D50
-	std::uint32_t padD54;                                              // D54
-	TESFile* activeFile;                                               // D58
-	BSSimpleList<TESFile*> files;                                      // D60
-																	   // ~~~~~~~~~~~~~~~~~ below member differs from VR~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	TESOverlayFileCollection compiledFileCollection;                   // D70
-	std::uint64_t fakeVRpadding[0xFA];                                 // D78
-																	   /*
-* 		std::uint32_t         loadedModCount;     // D70
-		std::uint32_t         pad14;              // D74
-		TESFile*              loadedMods[0xFF];   // D78
-*/
-																	   // ~~~~~~~~~~~~~~~~~ end VR difference ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	bool masterSave;                                                   // 1570
-	bool blockSave;                                                    // 1571
-	bool saveLoadGame;                                                 // 1572
-	bool autoSaving;                                                   // 1574
-	bool exportingPlugin;                                              // 1575
-	bool clearingData;                                                 // 1576 - init'd to 1
-	bool hasDesiredFiles;                                              // 1577
-	bool checkingModels;                                               // 1578
-	bool loadingFiles;                                                 // 1579
-	bool dontRemoveIDs;                                                // 157A
-	std::uint8_t pad157B[5];                                           // 157B
-	TESRegionDataManager* regionDataManager;                           // 1580
-	InventoryChanges* merchantInventory;                               // 1588
+	TESObjectList* objectList;                                                // 0060
+	BSTArray<TESForm*> formArrays[stl::to_underlying(ENUM_FORM_ID::kTotal)];  // 0068
+	TESRegionList* regionList;                                                // 0F50
+	NiTPrimitiveArray<TESObjectCELL*> interiorCells;                          // 0F58
+	NiTPrimitiveArray<BGSAddonNode*> addonNodes;                              // 0F70
+	NiTList<TESForm*> badForms;                                               // 0F88
+	std::uint32_t nextID;                                                     // 0FA0
+	TESFile* activeFile;                                                      // 0FA8
+	BSSimpleList<TESFile*> files;                                             // 0FB0
+	std::uint32_t loadedModCount;											  // 0FC0
+	std::uint32_t padfc4;													  // 0FC4
+	TESFile* loadedMods[0xFF];												  // 0FC8
+	BSTArray<std::uint32_t> releasedFormIDArray;                              // 17c0
+	bool masterSave;                                                          // 17d8
+	bool blockSave;                                                           // 17d9
+	bool saveLoadGame;                                                        // 17da
+	bool autoSaving;                                                          // 17db
+	bool exportingPlugin;                                                     // 17dc
+	bool clearingData;                                                        // 17dd
+	bool hasDesiredFiles;                                                     // 17de
+	bool checkingModels;                                                      // 17df
+	bool loadingFiles;                                                        // 17e0
+	bool dontRemoveIDs;                                                       // 17e1
+	char gameSettingsLoadState;                                               // 17e2
+	TESRegionDataManager* regionDataManager;                                  // 17e8
+	TESOverlayFileCollection compiledFileCollection;                          // 17f0
 };
-static_assert(sizeof(DataHandler) == 0x1590);
-static_assert(offsetof(DataHandler, masterSave) == 0x1570);
-#else
-	TESOverlayFileCollection compiledFileCollection;  // 1020
-};
-static_assert(sizeof(DataHandler) == 0x1068);
-static_assert(offsetof(DataHandler, compiledFileCollection) == 0x1020);
-#endif
+static_assert(sizeof(DataHandler) == 0x1838);
+static_assert(offsetof(DataHandler, compiledFileCollection) == 0x17f0);
+
 
 //namespace SkyrimVRESLPluginAPI
 //{

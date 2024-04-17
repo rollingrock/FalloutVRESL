@@ -22,25 +22,21 @@ struct DataHandlerCTORHook
 
 	static void Install()
 	{
-		pstl::write_thunk_call<DataHandlerCTORHook>(target.address() + 0x3DB);
-		logger::info("DataHandlerCTORHook installed at {:x}", target.address() + 0x3DB);
-		logger::info("DataHandlerCTORHook installed at offset {:x}", target.offset() + 0x3DB);
+		pstl::write_thunk_call<DataHandlerCTORHook>(target.address() + 0x318);
+		logger::info("DataHandlerCTORHook installed at {:x}", target.address() + 0x318);
+		logger::info("DataHandlerCTORHook installed at offset {:x}", target.offset() + 0x318);
 	}
 };
 
-#ifndef BACKWARDS_COMPATIBLE
 const RE::TESFile* DataHandler::LookupModByName(std::string_view a_modName)
 {
 	RE::TESDataHandler* handler = RE::TESDataHandler::GetSingleton();
 	return handler->LookupModByName(a_modName);
 }
-#endif
 
 void DataHandler::InstallHooks()
 {
-#ifdef BACKWARDS_COMPATIBLE
 	DataHandlerCTORHook::Install();
-#endif
 }
 
 //SkyrimVRESLPluginAPI::SkyrimVRESLInterface001 g_interface001;
