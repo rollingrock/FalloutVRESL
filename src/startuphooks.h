@@ -19,51 +19,56 @@ namespace startuphooks
 	// This is a replica of what Skyrim SE does when adding files
 	static void AddFile(RE::TESFile* a_file)
 	{
-//		logger::debug("AddFile invoked {} {:x}", std::string(a_file->filename), a_file->compileIndex);
-//		auto handler = DataHandler::GetSingleton();
-//		auto& fileCollection = handler->compiledFileCollection;
-//		if (!a_file->IsLight() && HasFile(fileCollection.files, a_file)) {
-//			return;
-//		} else if (a_file->IsLight() && HasFile(fileCollection.smallFiles, a_file)) {
-//			return;
-//		}
-//
-//#ifdef BACKWARDS_COMPATIBLE
-//		if (!a_file->IsLight()) {
-//			handler->loadedMods[handler->loadedModCount] = a_file;
-//			handler->loadedModCount++;
-//		}
-//#endif
-//		if (isOverlay(a_file)) {
-//			logger::debug("Adding {} as an overlay plugin", a_file->filename);
-//			fileCollection.overlayFiles.push_back(a_file);
-//			return;
-//		}
-//
-//		if (a_file->IsLight()) {
-//			fileCollection.smallFiles.push_back(a_file);
-//			auto smallFileCompileIndex = fileCollection.smallFiles.size() - 1;
-//			a_file->flags &= 0xFFFFFFu;
-//			a_file->flags |= 0xFE << 24;
-//			a_file->compileIndex = 0xFE;
-//			a_file->smallFileCompileIndex = smallFileCompileIndex;
-//			if (smallFileCompileIndex > 0xFFF) {
-//				auto msg = std::format("ESL plugin {} was added beyond the ESL range! Reduce the number of ESL plugins in your load order to fix this", a_file->fileName);
-//				stl::report_and_fail(msg);
-//			}
-//		} else {
-//			fileCollection.files.push_back(a_file);
-//			auto fileCompileIndex = fileCollection.files.size() - 1;
-//			a_file->flags &= 0xFFFFFFu;
-//			a_file->flags |= fileCompileIndex << 24;
-//			a_file->compileIndex = fileCompileIndex;
-//			a_file->smallFileCompileIndex = 0;
-//			if (fileCompileIndex >= 0xFE) {
-//				auto msg = std::format("Regular plugin {} was added beyond the ESP range. This will overflow with ESLs and break the game! Reduce the number of regular plugins in the load order to fix this", a_file->fileName);
-//				stl::report_and_fail(msg);
-//			}
-//		}
-//		logger::debug("AddFile finished");
+		logger::debug("AddFile invoked {} {:x}", std::string(a_file->filename), a_file->compileIndex);
+		auto handler = DataHandler::GetSingleton();
+		auto& fileCollection = handler->compiledFileCollection;
+		if (!a_file->IsLight() && HasFile(fileCollection.files, a_file)) {
+			return;
+		} else if (a_file->IsLight() && HasFile(fileCollection.smallFiles, a_file)) {
+			return;
+		}
+
+		if (!a_file->IsLight()) {
+			handler->loadedMods[handler->loadedModCount] = a_file;
+			handler->loadedModCount++;
+		}
+
+		if (isOverlay(a_file)) {
+			logger::debug("Adding {} as an overlay plugin", a_file->filename);
+			fileCollection.overlayFiles.push_back(a_file);
+			return;
+		}
+
+		if (a_file->IsLight()) {
+			fileCollection.smallFiles.push_back(a_file);
+			auto smallFileCompileIndex = fileCollection.smallFiles.size() - 1;
+			auto ul = reinterpret_cast<std::uint32_t*>(&a_file->flags);
+			*ul &= 0xFFFFFFu;
+			*ul |= 0xFE << 24;
+			//a_file->flags &= 0xFFFFFFu;
+			//a_file->flags |= 0xFE << 24;
+			a_file->compileIndex = 0xFE;
+			a_file->smallFileCompileIndex = smallFileCompileIndex;
+			if (smallFileCompileIndex > 0xFFF) {
+				auto msg = std::format("ESL plugin {} was added beyond the ESL range! Reduce the number of ESL plugins in your load order to fix this", a_file->filename);
+				stl::report_and_fail(msg);
+			}
+		} else {
+			fileCollection.files.push_back(a_file);
+			auto fileCompileIndex = fileCollection.files.size() - 1;
+			auto ul = reinterpret_cast<std::uint32_t*>(&a_file->flags);
+			*ul &= 0xFFFFFFu;
+			*ul |= fileCompileIndex << 24;
+			//a_file->flags &= 0xFFFFFFu;
+			//a_file->flags |= fileCompileIndex << 24;
+			a_file->compileIndex = fileCompileIndex;
+			a_file->smallFileCompileIndex = 0;
+			if (fileCompileIndex >= 0xFE) {
+				auto msg = std::format("Regular plugin {} was added beyond the ESP range. This will overflow with ESLs and break the game! Reduce the number of regular plugins in the load order to fix this", a_file->filename);
+				stl::report_and_fail(msg);
+			}
+		}
+		logger::debug("AddFile finished");
 	}
 
 	struct AddTESFileHook
@@ -75,7 +80,7 @@ namespace startuphooks
 
 		static void Install()
 		{
-			REL::Relocation<std::uintptr_t> target{ REL::Offset(0x17DFF0) };
+			REL::Relocation<std::uintptr_t> target{ REL::Offset(0x011d590) };  // Skyrim was 0x17dff0
 
 			auto& trampoline = F4SE::GetTrampoline();
 			F4SE::AllocTrampoline(14);
@@ -105,8 +110,8 @@ namespace startuphooks
 
 		static void Install()
 		{
-			REL::Relocation<std::uintptr_t> target{ REL::Offset(0x1831F0 + 0x807) };
-			REL::Relocation<std::uintptr_t> jmp{ REL::Offset(0x1831F0 + 0x852) };
+			REL::Relocation<std::uintptr_t> target{ REL::Offset(0x0123490 + 0x9b5) };  // Skyrim was 0x1831f0 + 0x807
+			REL::Relocation<std::uintptr_t> jmp{ REL::Offset(0x0123490 + 0x9F4) };  // 0x852
 			REL::safe_fill(target.address(), REL::NOP, jmp.address() - target.address());
 
 			auto trampolineJmp = TrampolineCall(jmp.address());
@@ -137,8 +142,8 @@ namespace startuphooks
 
 		static void Install()
 		{
-			REL::Relocation<std::uintptr_t> target{ REL::Offset(0x1831F0 + 0x807) };
-			REL::Relocation<std::uintptr_t> jmp{ REL::Offset(0x1831F0 + 0x852) };
+			REL::Relocation<std::uintptr_t> target{ REL::Offset(0x0123490 + 0x9b5) };
+			REL::Relocation<std::uintptr_t> jmp{ REL::Offset(0x0123490 + 0x9F4) };
 			REL::safe_fill(target.address(), REL::NOP, jmp.address() - target.address());
 
 			auto trampolineJmp = TrampolineCall(jmp.address());
@@ -151,9 +156,9 @@ namespace startuphooks
 
 	struct CompileFilesHook
 	{
-		static inline REL::Relocation<std::uintptr_t> target{ REL::Offset(0x17EFF0) };
+		static inline REL::Relocation<std::uintptr_t> target{ REL::Offset(0x011e8e0) };  // Skyrim was 0x17eff0
 
-		static inline REL::Relocation<int> iTotalForms{ REL::Offset(0x1F889B4) };
+		static inline REL::Relocation<int> iTotalForms{ REL::Offset(0x5935170) };  // Skyrim was 0x1f889b4
 
 		struct TrampolineCall : Xbyak::CodeGenerator
 		{
@@ -200,8 +205,8 @@ namespace startuphooks
 
 		static void InstallAddFile()
 		{
-			std::uintptr_t start = target.address() + 0x196;
-			std::uintptr_t end = target.address() + 0x1B9;
+			std::uintptr_t start = target.address() + 0x387; // 0x196
+			std::uintptr_t end = target.address() + 0x3AA;   // 0x1b9
 			REL::safe_fill(start, REL::NOP, end - start);
 
 			auto trampolineJmp = TrampolineCall(end);
@@ -218,8 +223,8 @@ namespace startuphooks
 
 		static void InstallAddFile2()
 		{
-			std::uintptr_t start = target.address() + 0x1F0;
-			std::uintptr_t end = target.address() + 0x217;
+			std::uintptr_t start = target.address() + 0x3CD;   // 0x1f0
+			std::uintptr_t end = target.address() + 0x3F4;     // 0x217
 			REL::safe_fill(start, REL::NOP, end - start);
 
 			auto trampolineJmp = TrampolineCall2(end);
@@ -253,8 +258,8 @@ namespace startuphooks
 
 		static void InstallOpenTESLoop()
 		{
-			std::uintptr_t start = target.address() + 0x21D;
-			std::uintptr_t end = target.address() + 0x268;
+			std::uintptr_t start = target.address() + 0x3FB;  // 0x21d
+			std::uintptr_t end = target.address() + 0x448;    // 0x268
 			REL::safe_fill(start, REL::NOP, end - start);
 
 			auto trampolineJmp = TrampolineCall2(end, stl::unrestricted_cast<std::uintptr_t>(OpenTESLoopThunk));
@@ -270,7 +275,7 @@ namespace startuphooks
 		static void ConstructObjectList(DataHandler* a_handler, RE::TESFile* a_file, bool a_isFirstPlugin)
 		{
 			using func_t = decltype(&ConstructObjectList);
-			REL::Relocation<func_t> func{ REL::Offset(0x180870) };
+			REL::Relocation<func_t> func{ REL::Offset(0x0120350) };  // 0x180870
 			return func(a_handler, a_file, a_isFirstPlugin);
 		}
 
@@ -301,8 +306,8 @@ namespace startuphooks
 
 		static void InstallConstructObjectListLoop()
 		{
-			std::uintptr_t start = target.address() + 0x29C;
-			std::uintptr_t end = target.address() + 0x2D2;
+			std::uintptr_t start = target.address() + 0x475;   // 0x29c
+			std::uintptr_t end = target.address() + 0x4A6;     // 0x2d2
 			REL::safe_fill(start, REL::NOP, end - start);
 
 			auto trampolineJmp = TrampolineCall2(end, stl::unrestricted_cast<std::uintptr_t>(ConstructObjectListThunk));
@@ -356,7 +361,7 @@ namespace startuphooks
 
 			static void Install()
 			{
-				REL::Relocation<std::uintptr_t> target{ REL::Offset(0xC70FB0 + 0x1ED) };
+				REL::Relocation<std::uintptr_t> target{ REL::Offset(0x1BD9CD0 + 0x1ED) };  // 0xC70FB0 + 0x1ED
 				pstl::write_thunk_call<ParsePluginTXTHook>(target.address());
 				REL::safe_fill(target.address(), REL::NOP, 0x100);
 				logger::info("Hooked PluginParsing at {:x}", target.address());
@@ -366,37 +371,37 @@ namespace startuphooks
 
 		struct PrepareBSAHook
 		{
-			static inline REL::Relocation<std::uintptr_t> target{ REL::Offset(0x184360) };
+			static inline REL::Relocation<std::uintptr_t> target{ REL::Offset(0x0124c30) };  // 0x184360
 
 			static void Install()
 			{
 				auto& trampoline = F4SE::GetTrampoline();
 				F4SE::AllocTrampoline(14);
 
-				trampoline.write_call<6>(target.address() + 0x8F, EslExtensionCheck);
-				logger::info("PrepareBSAHook hooked at {:x}", target.address() + 0x8F);
-				logger::info("PrepareBSAHook hooked at offset {:x}", target.offset() + 0x8F);
+				trampoline.write_call<6>(target.address() + 0x82, EslExtensionCheck);
+				logger::info("PrepareBSAHook hooked at {:x}", target.address() + 0x82);    // 0x8F
+				logger::info("PrepareBSAHook hooked at offset {:x}", target.offset() + 0x82);
 			}
 		};
 
 		struct UnkUIModHook
 		{
-			static inline REL::Relocation<std::uintptr_t> target{ REL::Offset(0x52D230) };
+			static inline REL::Relocation<std::uintptr_t> target{ REL::Offset(0x0b76c10) };  // 0x52D230
 
 			static void Install()
 			{
 				auto& trampoline = F4SE::GetTrampoline();
 				F4SE::AllocTrampoline(14);
 
-				trampoline.write_call<6>(target.address() + 0x74, EslExtensionCheck);
-				logger::info("UnkUIModHook hooked at {:x}", target.address() + 0x74);
-				logger::info("UnkUIModHook hooked at offset {:x}", target.offset() + 0x74);
+				trampoline.write_call<6>(target.address() + 0x16B, EslExtensionCheck);   // 0x74
+				logger::info("UnkUIModHook hooked at {:x}", target.address() + 0x16B);
+				logger::info("UnkUIModHook hooked at offset {:x}", target.offset() + 0x16B);
 			}
 		};
 
 		struct BuildFileListHook
 		{
-			static inline REL::Relocation<std::uintptr_t> target{ REL::Offset(0x17E540) };
+			static inline REL::Relocation<std::uintptr_t> target{ REL::Offset(0x011dcd0) };  // 0x17e540
 
 			struct TrampolineCall : Xbyak::CodeGenerator
 			{
@@ -423,8 +428,8 @@ namespace startuphooks
 
 			static void Install()
 			{
-				std::uintptr_t start = target.address() + 0xB0;
-				std::uintptr_t end = target.address() + 0x113;
+				std::uintptr_t start = target.address() + 0xC0;  // 0xB0
+				std::uintptr_t end = target.address() + 0x121;   // 0x113
 				REL::safe_fill(start, REL::NOP, end - start);
 
 				auto trampolineJmp = TrampolineCall(end, stl::unrestricted_cast<std::uintptr_t>(IsFilenameAPlugin));
@@ -434,11 +439,12 @@ namespace startuphooks
 					logger::critical("BuildFileListHook is {} bytes too big!", trampolineJmp.getSize() - (end - start));
 				}
 
-				logger::info("BuildFileListHook hooked at {:x}", target.address() + 0xB0);
-				logger::info("BuildFileListHook hooked at offset {:x}", target.offset() + 0xB0);
+				logger::info("BuildFileListHook hooked at {:x}", target.address() + 0xC0);
+				logger::info("BuildFileListHook hooked at offset {:x}", target.offset() + 0xC0);
 			}
 		};
 
+		//  TODO: THIS IS COMPLETELY DIFFERENT IN FALLOUT.....need to see what to do
 		struct ParseINIHook
 		{
 			static inline REL::Relocation<std::uintptr_t> target{ REL::Offset(0x5C18D0) };
@@ -465,22 +471,22 @@ namespace startuphooks
 
 		struct UnkSetCheckHook
 		{
-			static inline REL::Relocation<std::uintptr_t> target{ REL::Offset(0x51F890) };
+			static inline REL::Relocation<std::uintptr_t> target{ REL::Offset(0x0b6d710) };  // 0x51f890
 
 			static void Install()
 			{
 				auto& trampoline = F4SE::GetTrampoline();
 				F4SE::AllocTrampoline(14);
 
-				trampoline.write_call<6>(target.address() + 0x1BA, EslExtensionCheck);
-				logger::info("UnkSetCheckHook hooked at {:x}", target.address() + 0x1BA);
-				logger::info("UnkSetCheckHook hooked at offset {:x}", target.offset() + 0x1BA);
+				trampoline.write_call<6>(target.address() + 0x206, EslExtensionCheck);   // 0x1ba
+				logger::info("UnkSetCheckHook hooked at {:x}", target.address() + 0x206);
+				logger::info("UnkSetCheckHook hooked at offset {:x}", target.offset() + 0x206);
 			}
 		};
 
 		struct UnkHook
 		{
-			static inline REL::Relocation<std::uintptr_t> target{ REL::Offset(0x51DC00) };
+			static inline REL::Relocation<std::uintptr_t> target{ REL::Offset(0x0b6d4c0) };  // 0x51dc00
 
 			static bool thunk(char* a_extension, const char* a_esm)
 			{
@@ -495,9 +501,9 @@ namespace startuphooks
 
 			static void Install()
 			{
-				pstl::write_thunk_call<UnkHook>(target.address() + 0x194);
-				logger::info("UnkHook hooked at {:x}", target.address() + 0x194);
-				logger::info("UnkHook hooked at offset {:x}", target.offset() + 0x194);
+				pstl::write_thunk_call<UnkHook>(target.address() + 0x1d8);
+				logger::info("UnkHook hooked at {:x}", target.address() + 0x1d8);
+				logger::info("UnkHook hooked at offset {:x}", target.offset() + 0x1d8);
 			}
 		};
 
@@ -505,7 +511,7 @@ namespace startuphooks
 		{
 			ParsePluginTXTHook::Install();  // Unused, patching on the off-chance it is
 			BuildFileListHook::Install();
-			ParseINIHook::Install();
+			//ParseINIHook::Install();    // TODO: FIND THIS ONE
 			PrepareBSAHook::Install();
 			UnkSetCheckHook::Install();
 			UnkUIModHook::Install();

@@ -33,15 +33,19 @@ static inline bool isOverlay(RE::TESFile* a_file)
 	return isOverlay != 0;
 }
 
-class DataHandler : 
-		public BSTEventSource<BGSHotloadCompletedEvent>,  // 0000
-		public BSTSingletonSDM<DataHandler>            // 0058
-
+class DataHandler : public
+#ifndef BACKWARDS_COMPATIBLE
+		BSTEventSource<BGSHotloadCompletedEvent>,  // 0000
+		BSTSingletonSDM<DataHandler>            // 0058
+#else
+		TESDataHandler
+#endif
 {
 public:
 	static DataHandler* GetSingleton();
 	static void InstallHooks();
 
+#ifndef BACKWARDS_COMPATIBLE
 	const RE::TESFile* LookupModByName(std::string_view a_modName);
 	// members
 	TESObjectList* objectList;                                                // 0060
@@ -69,10 +73,28 @@ public:
 	bool dontRemoveIDs;                                                       // 17e1
 	char gameSettingsLoadState;                                               // 17e2
 	TESRegionDataManager* regionDataManager;                                  // 17e8
+#else
+	std::uint32_t loadedModCount; /* 0FC0 */
+	std::uint32_t pad14;              /* 0FC4 */
+	TESFile* loadedMods[0xFF];        /* 0FC8 */
+	BSTArray<std::uint32_t> releasedFormIDArray;                              /* 0FF0 */
+	bool masterSave;                                                          /* 1008 */
+	bool blockSave;                                                           /* 1009 */
+	bool saveLoadGame;                                                        /* 100A */
+	bool autoSaving;                                                          /* 100B */
+	bool exportingPlugin;                                                     /* 100C */
+	bool clearingData;                                                        /* 100D */
+	bool hasDesiredFiles;                                                     /* 100E */
+	bool checkingModels;                                                      /* 100F */
+	bool loadingFiles;                                                        /* 1010 */
+	bool dontRemoveIDs;                                                       /* 1011 */
+	char gameSettingsLoadState;                                               /* 1012*/
+	TESRegionDataManager* regionDataManager;          // 1018, VR 17E8
 	TESOverlayFileCollection compiledFileCollection;                          // 17f0
 };
 static_assert(sizeof(DataHandler) == 0x1838);
 static_assert(offsetof(DataHandler, compiledFileCollection) == 0x17f0);
+#endif
 
 
 //namespace SkyrimVRESLPluginAPI
