@@ -57,16 +57,17 @@ namespace tesfilehooks
 	{
 		static void Install()
 		{
-			REL::Relocation<std::uintptr_t> target{ REL::Offset(0x389CA0) };
+			REL::Relocation<std::uintptr_t> target{ REL::Offset(0x05c88a0) };  // skyrim 0x389ca0
 			F4SE::AllocTrampoline(14);
-			F4SE::GetTrampoline().write_call<5>(target.address() + 0x181, GetLoadedModCountSE);
+			F4SE::GetTrampoline().write_call<5>(target.address() + 0x1E5, GetLoadedModCountSE);  // 0x181
 			F4SE::AllocTrampoline(14);
-			F4SE::GetTrampoline().write_call<5>(target.address() + 0x199, GetModAtIndex);
+			F4SE::GetTrampoline().write_call<5>(target.address() + 0x209, GetModAtIndex);   // 0x199
 
 			logger::info("Installed TESQuest LoadedModCheck hook");
 		}
 	};
 
+	// TODO: FALLOUT only has one like the TESQuest hook.  So don't think this one is needed but will need to check other references to GetLoadedModCount
 	struct UnkTESTopicHook
 	{
 		static void Install()
@@ -91,10 +92,10 @@ namespace tesfilehooks
 
 		static void Install()
 		{
-			REL::Relocation<std::uintptr_t> target{ REL::Offset(0x4B80A0 + 0x159) };
+			REL::Relocation<std::uintptr_t> target{ REL::Offset(0x079ef50 + 0xBA) };  // 0x4b80a0 + 0x159
 			F4SE::AllocTrampoline(14);
 			F4SE::GetTrampoline().write_call<5>(target.address(), UnkTerrainHook::thunk);
-			REL::Relocation<std::uintptr_t> target2{ REL::Offset(0x4B80A0 + 0xA3) };
+			REL::Relocation<std::uintptr_t> target2{ REL::Offset(0x4B80A0 + 0x76) };  // 0xa3
 			F4SE::AllocTrampoline(14);
 			F4SE::GetTrampoline().write_call<5>(target2.address(), UnkTerrainHook::thunk);
 		}
@@ -177,6 +178,7 @@ namespace tesfilehooks
 			return nullptr;
 		}
 
+		// TODO : this loop doesn't seem to exist or is implemented different in fallout so not using for now
 		static void SkipLoadedModsOptimizedLoopCheck()
 		{
 			// The loop only does logic on `loadedMods` if a single file is "optimized"
@@ -191,9 +193,9 @@ namespace tesfilehooks
 
 		static void InstallFileOpenLoop()
 		{
-			std::uintptr_t start = target.address() + 0x173;
-			std::uintptr_t end = target.address() + 0x1A8;
-			std::uintptr_t failJmp = target.address() + 0x439;
+			std::uintptr_t start = target.address() + 0x197;  // 0x173
+			std::uintptr_t end = target.address() + 0x1E9;    // 0x1a8
+			std::uintptr_t failJmp = target.address() + 0x399; // 0x439
 			REL::safe_fill(start, REL::NOP, end - start);
 
 			auto trampolineJmp = TrampolineCOCCall(end, failJmp, stl::unrestricted_cast<std::uintptr_t>(OpenFileLoop));
@@ -206,10 +208,10 @@ namespace tesfilehooks
 
 		static void InstallFailOpenFileLoop()
 		{
-			std::uintptr_t start = target.address() + 0x439;
-			std::uintptr_t end = target.address() + 0x44C;
-			std::uintptr_t failJmp = target.address() + 0x44C;
-			std::uintptr_t succJmp = target.address() + 0x173;
+			std::uintptr_t start = target.address() + 0x399;   // 0x439
+			std::uintptr_t end = target.address() + 0x3AA;    // 0x44c
+			std::uintptr_t failJmp = target.address() + 0x3AA;  // 0x44c
+			std::uintptr_t succJmp = target.address() + 0x197;  // 0x173
 			REL::safe_fill(start, REL::NOP, end - start);
 
 			auto trampolineJmp = TrampolineFailCOCCall(succJmp, failJmp, stl::unrestricted_cast<std::uintptr_t>(IndexCheck));
@@ -222,7 +224,7 @@ namespace tesfilehooks
 
 		static void Install()
 		{
-			SkipLoadedModsOptimizedLoopCheck();
+		//	SkipLoadedModsOptimizedLoopCheck();  // TODO: seems to not exist in fallout so not using for now
 			InstallFileOpenLoop();
 			InstallFailOpenFileLoop();
 		}
@@ -230,7 +232,8 @@ namespace tesfilehooks
 
 	struct UnkCOCFileResetHook
 	{
-		static inline REL::Relocation<std::uintptr_t> target{ REL::Offset(0x17F350) };
+		static inline REL::Relocation<std::uintptr_t> target{  REL::Offset(0x011ede0) };  // 0x17f350
+		static inline REL::Relocation<std::uintptr_t> target2{ REL::Offset(0x011f776) };  
 
 		struct TrampolineCall : Xbyak::CodeGenerator
 		{
@@ -252,7 +255,7 @@ namespace tesfilehooks
 		static void UnkTESFile(RE::TESFile* a_file)
 		{
 			using func_t = decltype(&UnkTESFile);
-			REL::Relocation<func_t> func{ REL::Offset(0x18FBA0) };
+			REL::Relocation<func_t> func{ REL::Offset(0x013a060) };  // 0x18fba0
 			return func(a_file);
 		}
 
@@ -282,9 +285,10 @@ namespace tesfilehooks
 
 		static void Install()
 		{
-			std::uintptr_t start = target.address() + 0x70B;
-			std::uintptr_t end = target.address() + 0x757;
+			std::uintptr_t start = target.address() + 0x94E;  // 0x70B
+			std::uintptr_t end = target.address() + 0x98E;    // 0x757
 			REL::safe_fill(start, REL::NOP, end - start);
+			REL::safe_fill(target2.address(), REL::NOP, 7);   // need to nop the next instruction since in skyrim this was before the end
 			auto trampolineJmp = TrampolineCall(end, stl::unrestricted_cast<std::uintptr_t>(ClearFilesLoop));
 			REL::safe_write(start, trampolineJmp.getCode(), trampolineJmp.getSize());
 		}
@@ -292,8 +296,8 @@ namespace tesfilehooks
 
 	struct UnkHook
 	{
-		static inline REL::Relocation<std::uintptr_t> target{ REL::Offset(0x1B9E60) };
-		static inline REL::Relocation<std::uintptr_t> target2{ REL::Offset(0x1B9C50) };
+		static inline REL::Relocation<std::uintptr_t> target{ REL::Offset(0x017f700) };  // 0x1B9E60
+		static inline REL::Relocation<std::uintptr_t> target2{ REL::Offset(0x017f4d0) };  // 0x1b9c50
 
 		static std::uint64_t thunk(RE::FormID a_formID)
 		{
@@ -354,7 +358,7 @@ namespace tesfilehooks
 
 	struct DuplicateHook
 	{
-		static inline REL::Relocation<std::uintptr_t> target{ REL::Offset(0x18F060) };
+		static inline REL::Relocation<std::uintptr_t> target{ REL::Offset(0x18F060) };  // 0x18f060
 
 		struct TrampolineCall : Xbyak::CodeGenerator
 		{
@@ -396,8 +400,8 @@ namespace tesfilehooks
 		// Install our hook at the specified address
 		static inline void Install()
 		{
-			std::uintptr_t start = target.address() + 0xFC;
-			std::uintptr_t end = target.address() + 0x137;
+			std::uintptr_t start = target.address() + 0x117;   // 0xfc
+			std::uintptr_t end = target.address() + 0x16f;     // 0x137
 			REL::safe_fill(start, REL::NOP, end - start);
 			auto trampolineJmp = TrampolineCall(end, stl::unrestricted_cast<std::uintptr_t>(SetFlagsAndIndex));
 			REL::safe_write(start, trampolineJmp.getCode(), trampolineJmp.getSize());
@@ -419,7 +423,7 @@ namespace tesfilehooks
 
 		static void Install()
 		{
-			REL::Relocation<std::uintptr_t> target{ REL::Offset(0x17EFE0) };
+			REL::Relocation<std::uintptr_t> target{ REL::Offset(0x011e8d0) };  // 0x17EFE0
 			auto& trampoline = F4SE::GetTrampoline();
 			F4SE::AllocTrampoline(14);
 			trampoline.write_branch<5>(target.address(), thunk);
@@ -437,7 +441,7 @@ namespace tesfilehooks
 
 		static void Install()
 		{
-			REL::Relocation<std::uintptr_t> target{ REL::Offset(0x182D40) };
+			REL::Relocation<std::uintptr_t> target{ REL::Offset(0x0122a60) };  // 0x182d40
 			auto& trampoline = F4SE::GetTrampoline();
 			F4SE::AllocTrampoline(14);
 			trampoline.write_branch<5>(target.address(), thunk);
@@ -455,7 +459,7 @@ namespace tesfilehooks
 
 		static void Install()
 		{
-			REL::Relocation<std::uintptr_t> target{ REL::Offset(0x17FB90) };
+			REL::Relocation<std::uintptr_t> target{ REL::Offset(0x011f9b0) };  // 0x17FB90
 			auto& trampoline = F4SE::GetTrampoline();
 			F4SE::AllocTrampoline(14);
 			trampoline.write_branch<5>(target.address(), thunk);
@@ -469,7 +473,7 @@ namespace tesfilehooks
 		GetModAtIndexHook::Install();
 		IsGameModdedHook::Install();
 		TESQuestHook::Install();
-		UnkTESTopicHook::Install();
+	//	UnkTESTopicHook::Install();     // TODO: see if this one is needed in fallout.   
 		UnkTerrainHook::Install();
 		UnkCOCHook::Install();
 		UnkCOCFileResetHook::Install();
