@@ -140,9 +140,9 @@ extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_s
 	F4SE::Init(a_skse);
 	auto messaging = F4SE::GetMessagingInterface();
 	messaging->RegisterListener(MessageHandler);
-	//tesfilehooks::InstallHooks();
-	//startuphooks::InstallHooks();
-	//saveloadhooks::InstallHooks();
+	tesfilehooks::InstallHooks();
+	startuphooks::InstallHooks();
+	saveloadhooks::InstallHooks();
 	//eslhooks::InstallHooks();
 	DataHandler::InstallHooks();
 	//SaveLoadGame::InstallHooks();
