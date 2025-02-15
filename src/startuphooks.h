@@ -413,6 +413,7 @@ namespace startuphooks
 					call(ptr[rip + funcLabel]);
 					add(rsp, 0x20);
 					mov(rcx, jmpAfterCall);
+					test(rax, rax);
 					jmp(rcx);
 					L(funcLabel);
 					dq(func);
@@ -425,13 +426,13 @@ namespace startuphooks
 				logger::info("IsFilenameAPlugin Checking {}", string);
 				std::transform(string.begin(), string.end(), string.begin(), ::tolower);
 				logger::info("IsFilenameAPlugin return {}", string.ends_with(".esl") || string.ends_with(".esm") || string.ends_with(".esp"));
-				return string.ends_with(".esl") || string.ends_with(".esm") || string.ends_with(".esp");
+				return !(string.ends_with(".esl") || string.ends_with(".esm") || string.ends_with(".esp"));
 			}
 
 			static void Install()
 			{
 				std::uintptr_t start = target.address() + 0xC0;  // 0xB0
-				std::uintptr_t end = target.address() + 0x121;   // 0x113
+				std::uintptr_t end = target.address() + 0x11B;   // 0x113
 				REL::safe_fill(start, REL::NOP, end - start);
 
 				auto trampolineJmp = TrampolineCall(end, stl::unrestricted_cast<std::uintptr_t>(IsFilenameAPlugin));
@@ -446,10 +447,9 @@ namespace startuphooks
 			}
 		};
 
-		//  TODO: THIS IS COMPLETELY DIFFERENT IN FALLOUT.....need to see what to do
 		struct ParseINIHook
 		{
-			static inline REL::Relocation<std::uintptr_t> target{ REL::Offset(0x5C18D0) };
+			static inline REL::Relocation<std::uintptr_t> target{ REL::Offset(0x0d8d7e0) };   // Skyrim was 0x5c18d0
 
 			static std::uint64_t thunk(char a_extension[], const char* a_esm)
 			{
@@ -465,9 +465,9 @@ namespace startuphooks
 
 			static void Install()
 			{
-				pstl::write_thunk_call<ParseINIHook>(target.address() + 0xA6);
-				logger::info("ParseINIHook hooked at {:x}", target.address() + 0xA6);
-				logger::info("ParseINIHook hooked at offset {:x}", target.offset() + 0xA6);
+				pstl::write_thunk_call<ParseINIHook>(target.address() + 0x44);
+				logger::info("ParseINIHook hooked at {:x}", target.address() + 0x44);
+				logger::info("ParseINIHook hooked at offset {:x}", target.offset() + 0x44);
 			}
 		};
 
@@ -513,7 +513,7 @@ namespace startuphooks
 		{
 			ParsePluginTXTHook::Install();  // Unused, patching on the off-chance it is
 			BuildFileListHook::Install();
-			//ParseINIHook::Install();    // TODO: FIND THIS ONE
+			ParseINIHook::Install();    
 			PrepareBSAHook::Install();
 			UnkSetCheckHook::Install();
 			UnkUIModHook::Install();
