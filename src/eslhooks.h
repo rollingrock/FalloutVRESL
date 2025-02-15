@@ -239,7 +239,9 @@ namespace eslhooks
 
 			static void Install()
 			{
-				F4SE::GetTrampoline().write_branch<5>(target.address(), AddCompileIndex);
+				auto& trampoline = F4SE::GetTrampoline();
+				F4SE::AllocTrampoline(14);
+				trampoline.write_branch<5>(target.address(), AddCompileIndex);
 			}
 		};
 

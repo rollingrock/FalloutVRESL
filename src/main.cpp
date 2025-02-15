@@ -84,6 +84,28 @@ void F4SEAPI MessageHandler(F4SE::MessagingInterface::Message* a_message)
 	}
 }
 
+void InitializeLog()
+{
+	auto path = logger::log_directory();
+	const auto gamepath = REL::Module::IsVR() ? "Fallout4VR/F4SE" : "Fallout4/F4SE";
+	if (!path.value().generic_string().ends_with(gamepath)) {
+		// handle bug where game directory is missing
+		path = path.value().parent_path().append(gamepath);
+	}
+
+	*path /= fmt::format("{}.log"sv, "FalloutVRESL"sv);
+	auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
+
+	const auto level = spdlog::level::trace;
+
+	auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
+	log->set_level(level);
+	log->flush_on(level);
+
+	spdlog::set_default_logger(std::move(log));
+	spdlog::set_pattern("[%Y-%m-%d %T.%e][%-16s:%-4#][%L]: %v"s);
+}
+
 extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Query(const F4SE::QueryInterface* a_skse, F4SE::PluginInfo* a_info)
 {
 	a_info->infoVersion = F4SE::PluginInfo::kVersion;
@@ -104,29 +126,6 @@ extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Query(const F4SE::QueryInterface* a
 	return true;
 }
 
-void InitializeLog()
-{
-	auto path = logger::log_directory();
-	if (!path) {
-		//stl::report_and_fail("Failed to find standard logging directory"sv); // Doesn't work in VR
-	}
-
-	*path /= Version::PROJECT;
-	*path += ".log"sv;
-	auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
-
-	auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
-
-	auto settings = Settings::GetSingleton();
-	log->set_level(settings->settings.logLevel);
-	log->flush_on(settings->settings.flushLevel);
-
-	spdlog::set_default_logger(std::move(log));
-	spdlog::set_pattern("[%H:%M:%S:%e] %v"s);
-
-	logger::info(FMT_STRING("{} v{}"), Version::PROJECT, Version::NAME);
-}
-
 extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_f4se)
 {
 	try {
@@ -135,9 +134,12 @@ extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_f
 		logger::error("Exception caught when loading settings! Default settings will be used");
 	}
 	InitializeLog();
+	logger::info("FalloutVRESL v{}.{}.{} {} {} is loading"sv, Version::MAJOR, Version::MINOR, Version::PATCH, __DATE__, __TIME__);
+	const auto runtimeVer = REL::Module::get().version();
+	logger::info("Fallout 4 v{}.{}.{}"sv, runtimeVer[0], runtimeVer[1], runtimeVer[2]);
 	logger::info("loaded plugin");
 
-	F4SE::Init(a_f4se);
+	F4SE::Init(a_f4se, false);
 	auto messaging = F4SE::GetMessagingInterface();
 	messaging->RegisterListener(MessageHandler);
 	tesfilehooks::InstallHooks();

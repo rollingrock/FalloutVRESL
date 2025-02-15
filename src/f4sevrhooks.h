@@ -298,8 +298,8 @@ namespace F4SEVRHooks
 			logger::info("Core_LoadCallback_switch hookin {:x} to jmp to {:x} with base {:x}", target, (std::uintptr_t)result, a_base);
 			a_trampoline->write_branch<5>(target, result);
 
-			logger::info("Core_LoadCallback_Switch hooked at address SKSEVR::{:x}", target);
-			logger::info("Core_LoadCallback_Switch hooked at offset SKSEVR::{:x}", target);
+			logger::info("Core_LoadCallback_Switch hooked at address F4SEVR::{:x}", target);
+			logger::info("Core_LoadCallback_Switch hooked at offset F4SEVR::{:x}", target);
 		}
 	};
 
@@ -350,8 +350,8 @@ namespace F4SEVRHooks
 			logger::info("Core_RevertCallbackHook hookin {:x} to jmp to {:x} with base {:x}", target, (std::uintptr_t)result, a_base);
 			a_trampoline->write_branch<5>(target, result);
 
-			logger::info("Core_RevertCallbackHook hooked at address SKSEVR::{:x}", target);
-			logger::info("Core_RevertCallbackHook hooked at offset SKSEVR::{:x}", target);
+			logger::info("Core_RevertCallbackHook hooked at address F4SEVR::{:x}", target);
+			logger::info("Core_RevertCallbackHook hooked at offset F4SEVR::{:x}", target);
 		}
 	};
 
@@ -370,7 +370,7 @@ namespace F4SEVRHooks
 	void Install(std::uint32_t a_f4se_version)
 	{
 		auto f4sevr_base = reinterpret_cast<uintptr_t>(GetModuleHandleA("f4sevr_1_2_72"));
-		if (a_f4se_version == 33554624) {  //0.6.21  // TODO fix up number
+		if (a_f4se_version == 393536) {  //0.6.21  // TODO fix up number
 			logger::info("Found patchable f4sevr_1_2_72.dll version {} with base {:x}", a_f4se_version, f4sevr_base);
 		} else {
 			logger::info("Found unknown f4sevr_1_2_72.dll version {} with base {:x}; not patching", a_f4se_version, f4sevr_base);
