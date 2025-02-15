@@ -5,7 +5,7 @@
 #include "eslhooks.h"
 #include "hooks.h"
 #include "saveloadhooks.h"
-#include "sksevrhooks.h"
+#include "f4sevrhooks.h"
 #include "startuphooks.h"
 #include "tesfilehooks.h"
 
@@ -127,7 +127,7 @@ void InitializeLog()
 	logger::info(FMT_STRING("{} v{}"), Version::PROJECT, Version::NAME);
 }
 
-extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_skse)
+extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_f4se)
 {
 	try {
 		Settings::GetSingleton()->Load();
@@ -137,7 +137,7 @@ extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_s
 	InitializeLog();
 	logger::info("loaded plugin");
 
-	F4SE::Init(a_skse);
+	F4SE::Init(a_f4se);
 	auto messaging = F4SE::GetMessagingInterface();
 	messaging->RegisterListener(MessageHandler);
 	tesfilehooks::InstallHooks();
@@ -146,7 +146,7 @@ extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_s
 	eslhooks::InstallHooks();
 	DataHandler::InstallHooks();
 	SaveLoadGame::InstallHooks();
-	//SKSEVRHooks::Install(a_skse->SKSEVersion());
+	F4SEVRHooks::Install(a_f4se->F4SEVersion().pack());
 	logger::info("finish hooks");
 
 	//auto papyrus = SKSE::GetPapyrusInterface();

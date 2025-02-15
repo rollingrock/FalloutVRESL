@@ -66,7 +66,7 @@ namespace F4SEVRHooks
 			}
 		}
 		if (!saveSuccessful) {
-			logger::error("SKSE cosave failed");
+			logger::error("F4SE cosave failed");
 		}
 	}
 
@@ -339,35 +339,35 @@ namespace F4SEVRHooks
 		}
 	};
 
-	struct SKSEVRPatches
+	struct F4SEVRPatches
 	{
 		std::string name;
 		std::uintptr_t offset;
 		void* function;
 	};
 
-	std::vector<SKSEVRPatches> patches{
+	std::vector<F4SEVRPatches> patches{
 		{ "SaveModList", 0x28050, SavePluginsList },
 		{ "LoadModList", 0x27EE0, LoadModList },
 		{ "LoadLightModList", 0x28110, LoadLightModList },
 	};
-	void Install(std::uint32_t a_skse_version)
+	void Install(std::uint32_t a_f4se_version)
 	{
-		auto sksevr_base = reinterpret_cast<uintptr_t>(GetModuleHandleA("sksevr_1_4_15"));
-		if (a_skse_version == 33554624) {  //2.0.12
-			logger::info("Found patchable sksevr_1_4_15.dll version {} with base {:x}", a_skse_version, sksevr_base);
+		auto f4sevr_base = reinterpret_cast<uintptr_t>(GetModuleHandleA("f4sevr_1_2_72"));
+		if (a_f4se_version == 33554624) {  //2.0.12
+			logger::info("Found patchable f4sevr_1_2_72.dll version {} with base {:x}", a_f4se_version, f4sevr_base);
 		} else {
-			logger::info("Found unknown sksevr_1_4_15.dll version {} with base {:x}; not patching", a_skse_version, sksevr_base);
+			logger::info("Found unknown f4sevr_1_2_72.dll version {} with base {:x}; not patching", a_f4se_version, f4sevr_base);
 			return;
 		}
 
 		for (const auto& patch : patches) {
-			logger::info("Trying to patch {} at {:x} with {:x}"sv, patch.name, sksevr_base + patch.offset, (std::uintptr_t)patch.function);
-			std::uintptr_t target = (uintptr_t)(sksevr_base + patch.offset);
+			logger::info("Trying to patch {} at {:x} with {:x}"sv, patch.name, f4sevr_base + patch.offset, (std::uintptr_t)patch.function);
+			std::uintptr_t target = (uintptr_t)(f4sevr_base + patch.offset);
 			auto jmp = TrampolineJmp((std::uintptr_t)patch.function);
 			REL::safe_write(target, jmp.getCode(), jmp.getSize());
 
-			logger::info("SKSEVR {} patched"sv, patch.name);
+			logger::info("F4SEVR {} patched"sv, patch.name);
 		}
 
 		// Allocate space near the module's address for all of our assembly hooks to go into
@@ -375,12 +375,12 @@ namespace F4SEVRHooks
 		// The trampoline logic checks for first available region to allocate from 2 GB below addr to 2 GB above addr
 		// So we add a gigabyte to ensure the entire DLL is within 2 GB of the allocated region
 		constexpr std::size_t gigabyte = static_cast<std::size_t>(1) << 30;
-		auto SKSEVRTrampoline = new F4SE::Trampoline();
-		SKSEVRTrampoline->create(0x100, (void*)(sksevr_base + gigabyte));
+		auto F4SEVRTrampoline = new F4SE::Trampoline();
+		F4SEVRTrampoline->create(0x100, (void*)(f4sevr_base + gigabyte));
 
-		Core_LoadCallback_Switch::Install(sksevr_base, SKSEVRTrampoline);
-		Core_RevertCallbackHook::Install(sksevr_base, SKSEVRTrampoline);
-		ResolveFormIdHook::Install(sksevr_base);
-		ResolveHandleHook::Install(sksevr_base);
+		Core_LoadCallback_Switch::Install(f4sevr_base, F4SEVRTrampoline);
+		Core_RevertCallbackHook::Install(f4sevr_base, F4SEVRTrampoline);
+		ResolveFormIdHook::Install(f4sevr_base);
+		ResolveHandleHook::Install(f4sevr_base);
 	}
 }

@@ -6,7 +6,7 @@ set(headers ${headers}
 	src/hooks.h
 	src/Settings.h
 	src/tesfilehooks.h
-	src/sksevrhooks.h
+	src/f4sevrhooks.h
 	src/startuphooks.h
 	src/saveloadhooks.h
 	src/SaveLoadGame.h
