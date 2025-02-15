@@ -221,7 +221,7 @@ namespace F4SEVRHooks
 
 		static void Install(std::uintptr_t a_base)
 		{
-			std::uintptr_t target = a_base + 0x9BD60;
+			std::uintptr_t target = a_base + 0x61e40;
 			auto jmp = TrampolineJmp((std::uintptr_t)ResolveFormId);
 			REL::safe_write(target, jmp.getCode(), jmp.getSize());
 		}
@@ -255,7 +255,7 @@ namespace F4SEVRHooks
 
 		static void Install(std::uintptr_t a_base)
 		{
-			std::uintptr_t target = a_base + 0x9BE00;
+			std::uintptr_t target = a_base + 0x61ee0;
 			auto jmp = TrampolineJmp((std::uintptr_t)ResolveHandle);
 			REL::safe_write(target, jmp.getCode(), jmp.getSize());
 		}
@@ -286,9 +286,9 @@ namespace F4SEVRHooks
 
 		static inline void Install(std::uintptr_t a_base, F4SE::Trampoline* a_trampoline)
 		{
-			std::uintptr_t target{ a_base + 0x28580 };
-			std::uintptr_t beginSwitch{ a_base + 0x2858A };
-			std::uintptr_t endSwitch{ a_base + 0x28753 };
+			std::uintptr_t target{ a_base + 0x18d80 };
+			std::uintptr_t beginSwitch{ a_base + 0x18d8a };
+			std::uintptr_t endSwitch{ a_base + 0x18eca };
 
 			auto newCompareCheck = Core_LoadCallback_Switch(beginSwitch, endSwitch);
 			newCompareCheck.ready();
@@ -308,9 +308,25 @@ namespace F4SEVRHooks
 		Core_RevertCallbackHook(std::uintptr_t jmpBack, std::uintptr_t func = stl::unrestricted_cast<std::uintptr_t>(EraseMap))
 		{
 			Xbyak::Label funcLabel;
-			mov(ptr[rsp + 0x8], rbx);
+			// SKyrim Patch
+			//mov(ptr[rsp + 0x8], rbx);
+			//push(rdi);
+			//sub(rsp, 0x20);
+			//sub(rsp, 0x20);
+			//call(ptr[rip + funcLabel]);
+			//add(rsp, 0x20);
+			//mov(rcx, jmpBack);  // break out
+			//jmp(rcx);
+			//L(funcLabel);
+			//dq(func);
+
+			// F4SEVR Patch
+			push(rbx);
+			push(rbp);
+			push(rsi);
 			push(rdi);
-			sub(rsp, 0x20);
+			push(r14);
+			sub(rsp, 0x50);
 			sub(rsp, 0x20);
 			call(ptr[rip + funcLabel]);
 			add(rsp, 0x20);
@@ -323,8 +339,8 @@ namespace F4SEVRHooks
 		// Install our hook at the specified address
 		static inline void Install(std::uintptr_t a_base, F4SE::Trampoline* a_trampoline)
 		{
-			std::uintptr_t target{ a_base + 0x28210 };
-			std::uintptr_t jmpBack{ a_base + 0x2821A };
+			std::uintptr_t target{ a_base + 0x18890 };
+			std::uintptr_t jmpBack{ a_base + 0x1889b };
 
 			auto newCompareCheck = Core_RevertCallbackHook(jmpBack);
 			newCompareCheck.ready();
@@ -347,14 +363,14 @@ namespace F4SEVRHooks
 	};
 
 	std::vector<F4SEVRPatches> patches{
-		{ "SaveModList", 0x28050, SavePluginsList },
-		{ "LoadModList", 0x27EE0, LoadModList },
-		{ "LoadLightModList", 0x28110, LoadLightModList },
+		{ "SaveModList", 0x18680, SavePluginsList },
+		{ "LoadModList", 0x184e0, LoadModList },
+		{ "LoadLightModList", 0x18750, LoadLightModList },
 	};
 	void Install(std::uint32_t a_f4se_version)
 	{
 		auto f4sevr_base = reinterpret_cast<uintptr_t>(GetModuleHandleA("f4sevr_1_2_72"));
-		if (a_f4se_version == 33554624) {  //2.0.12
+		if (a_f4se_version == 33554624) {  //0.6.21  // TODO fix up number
 			logger::info("Found patchable f4sevr_1_2_72.dll version {} with base {:x}", a_f4se_version, f4sevr_base);
 		} else {
 			logger::info("Found unknown f4sevr_1_2_72.dll version {} with base {:x}; not patching", a_f4se_version, f4sevr_base);

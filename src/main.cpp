@@ -62,12 +62,12 @@ void F4SEAPI MessageHandler(F4SE::MessagingInterface::Message* a_message)
 					file->compileIndex);
 			}
 
-			//for (auto file : handler->compiledFileCollection.smallFiles) {
-			//	logger::debug("Small file {} recordFlags: {:x} index {:x}",
-			//		std::string(file->filename),
-			//		file->flags.underlying(),
-			//		file->smallFileCompileIndex);
-			//}
+			for (auto file : handler->compiledFileCollection.smallFiles) {
+				logger::debug("Small file {} recordFlags: {:x} index {:x}",
+					std::string(file->filename),
+					file->flags.underlying(),
+					file->smallFileCompileIndex);
+			}
 
 			auto [formMap, lock] = RE::TESForm::GetAllForms();
 			lock.get().lock_read();
@@ -149,7 +149,7 @@ extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_f
 	F4SEVRHooks::Install(a_f4se->F4SEVersion().pack());
 	logger::info("finish hooks");
 
-	//auto papyrus = SKSE::GetPapyrusInterface();
+	//auto papyrus = F4SE::GetPapyrusInterface();
 	//papyrus->Register(Papyrus::Bind);
 
 	return true;
