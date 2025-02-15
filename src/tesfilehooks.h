@@ -58,9 +58,9 @@ namespace tesfilehooks
 		static void Install()
 		{
 			REL::Relocation<std::uintptr_t> target{ REL::Offset(0x05c88a0) };  // skyrim 0x389ca0
-			F4SE::AllocTrampoline(14);
+			//F4SE::AllocTrampoline(14);
 			F4SE::GetTrampoline().write_call<5>(target.address() + 0x1E5, GetLoadedModCountSE);  // 0x181
-			F4SE::AllocTrampoline(14);
+			//F4SE::AllocTrampoline(14);
 			F4SE::GetTrampoline().write_call<5>(target.address() + 0x209, GetModAtIndex);   // 0x199
 
 			logger::info("Installed TESQuest LoadedModCheck hook");
@@ -73,9 +73,9 @@ namespace tesfilehooks
 		static void Install()
 		{
 			REL::Relocation<std::uintptr_t> target{ REL::Offset(0x389ED0) };
-			F4SE::AllocTrampoline(14);
+			//F4SE::AllocTrampoline(14);
 			F4SE::GetTrampoline().write_call<5>(target.address() + 0x147, GetLoadedModCountSE);
-			F4SE::AllocTrampoline(14);
+			//F4SE::AllocTrampoline(14);
 			F4SE::GetTrampoline().write_call<5>(target.address() + 0x169, GetModAtIndex);
 
 			logger::info("Installed UnkTESTopicHook hook");
@@ -93,10 +93,10 @@ namespace tesfilehooks
 		static void Install()
 		{
 			REL::Relocation<std::uintptr_t> target{ REL::Offset(0x079ef50 + 0xBA) };  // 0x4b80a0 + 0x159
-			F4SE::AllocTrampoline(14);
+			//F4SE::AllocTrampoline(14);
 			F4SE::GetTrampoline().write_call<5>(target.address(), UnkTerrainHook::thunk);
 			REL::Relocation<std::uintptr_t> target2{ REL::Offset(0x4B80A0 + 0x76) };  // 0xa3
-			F4SE::AllocTrampoline(14);
+			//F4SE::AllocTrampoline(14);
 			F4SE::GetTrampoline().write_call<5>(target2.address(), UnkTerrainHook::thunk);
 		}
 	};
@@ -200,9 +200,9 @@ namespace tesfilehooks
 
 			auto trampolineJmp = TrampolineCOCCall(end, failJmp, stl::unrestricted_cast<std::uintptr_t>(OpenFileLoop));
 			auto& trampoline = F4SE::GetTrampoline();
-			F4SE::AllocTrampoline(trampolineJmp.getSize());
+			//F4SE::AllocTrampoline(trampolineJmp.getSize());
 			auto result = trampoline.allocate(trampolineJmp);
-			F4SE::AllocTrampoline(14);
+			//F4SE::AllocTrampoline(14);
 			trampoline.write_branch<5>(start, (std::uintptr_t)result);
 		}
 
@@ -216,9 +216,9 @@ namespace tesfilehooks
 
 			auto trampolineJmp = TrampolineFailCOCCall(succJmp, failJmp, stl::unrestricted_cast<std::uintptr_t>(IndexCheck));
 			auto& trampoline = F4SE::GetTrampoline();
-			F4SE::AllocTrampoline(trampolineJmp.getSize());
+			//F4SE::AllocTrampoline(trampolineJmp.getSize());
 			auto result = trampoline.allocate(trampolineJmp);
-			F4SE::AllocTrampoline(14);
+			//F4SE::AllocTrampoline(14);
 			trampoline.write_branch<5>(start, (std::uintptr_t)result);
 		}
 
@@ -342,9 +342,9 @@ namespace tesfilehooks
 
 		static void InstallGetFileFromFormID()
 		{
-			F4SE::AllocTrampoline(14);
+			//F4SE::AllocTrampoline(14);
 			F4SE::GetTrampoline().write_call<5>(target.address() + 0x71, GetFileFromFormID);
-			F4SE::AllocTrampoline(14);
+			//F4SE::AllocTrampoline(14);
 			F4SE::GetTrampoline().write_call<5>(target2.address() + 0x66, GetFileFromFormID);
 		}
 
@@ -425,7 +425,7 @@ namespace tesfilehooks
 		{
 			REL::Relocation<std::uintptr_t> target{ REL::Offset(0x011e8d0) };  // 0x17EFE0
 			auto& trampoline = F4SE::GetTrampoline();
-			F4SE::AllocTrampoline(14);
+			//F4SE::AllocTrampoline(14);
 			trampoline.write_branch<5>(target.address(), thunk);
 		}
 	};
@@ -443,7 +443,7 @@ namespace tesfilehooks
 		{
 			REL::Relocation<std::uintptr_t> target{ REL::Offset(0x0122a60) };  // 0x182d40
 			auto& trampoline = F4SE::GetTrampoline();
-			F4SE::AllocTrampoline(14);
+			//F4SE::AllocTrampoline(14);
 			trampoline.write_branch<5>(target.address(), thunk);
 		}
 	};
@@ -461,7 +461,7 @@ namespace tesfilehooks
 		{
 			REL::Relocation<std::uintptr_t> target{ REL::Offset(0x011f9b0) };  // 0x17FB90
 			auto& trampoline = F4SE::GetTrampoline();
-			F4SE::AllocTrampoline(14);
+			//F4SE::AllocTrampoline(14);
 			trampoline.write_branch<5>(target.address(), thunk);
 		}
 	};

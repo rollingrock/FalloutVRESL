@@ -83,7 +83,7 @@ namespace startuphooks
 			REL::Relocation<std::uintptr_t> target{ REL::Offset(0x011d590) };  // Skyrim was 0x17dff0
 
 			auto& trampoline = F4SE::GetTrampoline();
-			F4SE::AllocTrampoline(14);
+			//F4SE::AllocTrampoline(14);
 			trampoline.write_branch<5>(target.address(), AddFileThunk);
 			logger::info("Install AddFile hook at {:x}", target.address());
 			logger::info("Install AddFile hook at offset {:x}", target.offset());
@@ -166,7 +166,7 @@ namespace startuphooks
 			TrampolineCall(std::uintptr_t jmpAfterCall, std::uintptr_t func = stl::unrestricted_cast<std::uintptr_t>(AddFile))
 			{
 				Xbyak::Label funcLabel;
-				mov(rcx, rbx);
+				mov(rcx, rsi);  // was rbx
 				sub(rsp, 0x20);
 				call(ptr[rip + funcLabel]);
 				add(rsp, 0x20);
@@ -212,10 +212,10 @@ namespace startuphooks
 			auto trampolineJmp = TrampolineCall(end);
 
 			auto& trampoline = F4SE::GetTrampoline();
-			F4SE::AllocTrampoline(trampolineJmp.getSize());
+			//F4SE::AllocTrampoline(trampolineJmp.getSize());
 			auto result = trampoline.allocate(trampolineJmp);
 			auto& trampoline2 = F4SE::GetTrampoline();
-			F4SE::AllocTrampoline(14);
+			//F4SE::AllocTrampoline(14);
 			trampoline2.write_branch<5>(start, (std::uintptr_t)result);
 
 			logger::info("Install LoadFilesHook hook at address {:x}", start);
@@ -376,7 +376,7 @@ namespace startuphooks
 			static void Install()
 			{
 				auto& trampoline = F4SE::GetTrampoline();
-				F4SE::AllocTrampoline(14);
+				//F4SE::AllocTrampoline(14);
 
 				trampoline.write_call<6>(target.address() + 0x82, EslExtensionCheck);
 				logger::info("PrepareBSAHook hooked at {:x}", target.address() + 0x82);    // 0x8F
@@ -391,7 +391,7 @@ namespace startuphooks
 			static void Install()
 			{
 				auto& trampoline = F4SE::GetTrampoline();
-				F4SE::AllocTrampoline(14);
+				//F4SE::AllocTrampoline(14);
 
 				trampoline.write_call<6>(target.address() + 0x16B, EslExtensionCheck);   // 0x74
 				logger::info("UnkUIModHook hooked at {:x}", target.address() + 0x16B);
@@ -408,7 +408,7 @@ namespace startuphooks
 				TrampolineCall(std::uintptr_t jmpAfterCall, std::uintptr_t func)
 				{
 					Xbyak::Label funcLabel;
-					lea(rcx, ptr[rbp - 0x5C]);  // Move fileName into place
+					lea(rcx, ptr[rbp + 0x8C]);  // Move fileName into place
 					sub(rsp, 0x20);
 					call(ptr[rip + funcLabel]);
 					add(rsp, 0x20);
@@ -422,7 +422,9 @@ namespace startuphooks
 			static bool IsFilenameAPlugin(const char* a_fileName)
 			{
 				auto string = std::string(a_fileName);
+				logger::info("IsFilenameAPlugin Checking {}", string);
 				std::transform(string.begin(), string.end(), string.begin(), ::tolower);
+				logger::info("IsFilenameAPlugin return {}", string.ends_with(".esl") || string.ends_with(".esm") || string.ends_with(".esp"));
 				return string.ends_with(".esl") || string.ends_with(".esm") || string.ends_with(".esp");
 			}
 
@@ -476,7 +478,7 @@ namespace startuphooks
 			static void Install()
 			{
 				auto& trampoline = F4SE::GetTrampoline();
-				F4SE::AllocTrampoline(14);
+				//F4SE::AllocTrampoline(14);
 
 				trampoline.write_call<6>(target.address() + 0x206, EslExtensionCheck);   // 0x1ba
 				logger::info("UnkSetCheckHook hooked at {:x}", target.address() + 0x206);

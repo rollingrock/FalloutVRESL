@@ -43,7 +43,7 @@ namespace eslhooks
 		// Give ESL/ESM flag like SE does
 		static void SetFormFlag(RE::TESFile* a_self)
 		{
-			logger::debug("SetFormFlag called on file {}", std::string(a_self->filename));
+			logger::debug("SetFormFlag called on file {} : flags = {:x}", std::string(a_self->filename), a_self->currentform.flags);
 			auto flags = a_self->currentform.flags;
 			a_self->flags.reset(FileFlag::kMaster, FileFlag::kOptimizedFile, FileFlag::kDelocalized, FileFlag::kSmallFile);
 			if (flags & 0x1) {
@@ -54,6 +54,9 @@ namespace eslhooks
 			}
 			if (flags & 0x80) {
 				a_self->flags.set(FileFlag::kDelocalized);
+			}
+			if (flags & 0x100) {
+				a_self->flags.set(FileFlag::kPrecalcDataOnly);
 			}
 			if (flags & 0x200) {
 				a_self->flags.set(FileFlag::kSmallFile);
@@ -167,9 +170,9 @@ namespace eslhooks
 
 				auto trampolineJmp = TrampolineCall(end, stl::unrestricted_cast<std::uintptr_t>(GetFormFromFile));
 				auto& trampoline = F4SE::GetTrampoline();
-				F4SE::AllocTrampoline(trampolineJmp.getSize());
+				//F4SE::AllocTrampoline(trampolineJmp.getSize());
 				auto result = trampoline.allocate(trampolineJmp);
-				F4SE::AllocTrampoline(14);
+				//F4SE::AllocTrampoline(14);
 				trampoline.write_branch<5>(start, (std::uintptr_t)result);
 			}
 		};
@@ -211,9 +214,9 @@ namespace eslhooks
 
 				auto trampolineJmp = TrampolineCall(end, stl::unrestricted_cast<std::uintptr_t>(AdjustFormID));
 				auto& trampoline = F4SE::GetTrampoline();
-				F4SE::AllocTrampoline(trampolineJmp.getSize());
+				//F4SE::AllocTrampoline(trampolineJmp.getSize());
 				auto result = trampoline.allocate(trampolineJmp);
-				F4SE::AllocTrampoline(14);
+				//F4SE::AllocTrampoline(14);
 				trampoline.write_branch<5>(start, (std::uintptr_t)result);
 			}
 		};
@@ -240,14 +243,14 @@ namespace eslhooks
 			static void Install()
 			{
 				auto& trampoline = F4SE::GetTrampoline();
-				F4SE::AllocTrampoline(14);
+				//F4SE::AllocTrampoline(14);
 				trampoline.write_branch<5>(target.address(), AddCompileIndex);
 			}
 		};
 
 		struct UnkDataHandlerWorldspaceFormLookupHook
 		{
-			static inline REL::Relocation<std::uintptr_t> target{ REL::Offset(0x17C000) };
+			static inline REL::Relocation<std::uintptr_t> target{ REL::Offset(0x011acc0) };  // 0x17c000
 
 			struct TrampolineCall : Xbyak::CodeGenerator
 			{
@@ -282,9 +285,9 @@ namespace eslhooks
 
 				auto trampolineJmp = TrampolineCall(end, stl::unrestricted_cast<std::uintptr_t>(AdjustFormID));
 				auto& trampoline = F4SE::GetTrampoline();
-				F4SE::AllocTrampoline(trampolineJmp.getSize());
+				//F4SE::AllocTrampoline(trampolineJmp.getSize());
 				auto result = trampoline.allocate(trampolineJmp);
-				F4SE::AllocTrampoline(14);
+				//F4SE::AllocTrampoline(14);
 				trampoline.write_branch<5>(start, (std::uintptr_t)result);
 			}
 		};

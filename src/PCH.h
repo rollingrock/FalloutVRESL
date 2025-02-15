@@ -34,7 +34,7 @@ namespace pstl
 	void write_thunk_call(std::uintptr_t a_src)
 	{
 		auto& trampoline = F4SE::GetTrampoline();
-		F4SE::AllocTrampoline(14);
+		//F4SE::AllocTrampoline(14);
 
 		T::func = trampoline.write_call<5>(a_src, T::thunk);
 	}

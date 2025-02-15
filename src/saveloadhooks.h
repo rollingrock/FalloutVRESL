@@ -93,7 +93,7 @@ namespace saveloadhooks
 		static void Install()
 		{
 			REL::Relocation<std::uintptr_t> target{ REL::Offset(0x0d28e70) };  // skyrim 0x585580
-			F4SE::AllocTrampoline(14);
+			//F4SE::AllocTrampoline(14);
 			F4SE::GetTrampoline().write_branch<5>(target.address(), SaveModNames);
 		}
 	};
@@ -179,7 +179,7 @@ namespace saveloadhooks
 		static void Install()
 		{
 			REL::Relocation<std::uintptr_t> target{ REL::Offset(0x0d28f30) };
-			F4SE::AllocTrampoline(14);
+			//F4SE::AllocTrampoline(14);
 			F4SE::GetTrampoline().write_branch<5>(target.address(), LoadMods);
 		}
 	};

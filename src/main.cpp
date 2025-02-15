@@ -23,6 +23,14 @@ int GetMaxStdio()
 	return maxStdio;
 }
 
+void AllocTrampoline()
+{
+	auto& trampoline = F4SE::GetTrampoline();
+	if (trampoline.empty()) {
+		F4SE::AllocTrampoline(1u << 10);
+	}
+}
+
 void F4SEAPI MessageHandler(F4SE::MessagingInterface::Message* a_message)
 {
 	switch (a_message->type) {
@@ -139,6 +147,7 @@ extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_f
 	logger::info("Fallout 4 v{}.{}.{}"sv, runtimeVer[0], runtimeVer[1], runtimeVer[2]);
 	logger::info("loaded plugin");
 
+	AllocTrampoline();
 	F4SE::Init(a_f4se, false);
 	auto messaging = F4SE::GetMessagingInterface();
 	messaging->RegisterListener(MessageHandler);
