@@ -143,9 +143,9 @@ extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_s
 	tesfilehooks::InstallHooks();
 	startuphooks::InstallHooks();
 	saveloadhooks::InstallHooks();
-	//eslhooks::InstallHooks();
+	eslhooks::InstallHooks();
 	DataHandler::InstallHooks();
-	//SaveLoadGame::InstallHooks();
+	SaveLoadGame::InstallHooks();
 	//SKSEVRHooks::Install(a_skse->SKSEVersion());
 	logger::info("finish hooks");
 
