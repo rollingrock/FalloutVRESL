@@ -1,5 +1,5 @@
 #include "DataHandler.h"
-//#include "Papyrus.h"
+#include "Papyrus.h"
 #include "Settings.h"
 //#include "SkyrimVRESLAPI.h"
 #include "eslhooks.h"
@@ -149,8 +149,8 @@ extern "C" DLLEXPORT bool F4SEAPI F4SEPlugin_Load(const F4SE::LoadInterface* a_f
 	F4SEVRHooks::Install(a_f4se->F4SEVersion().pack());
 	logger::info("finish hooks");
 
-	//auto papyrus = F4SE::GetPapyrusInterface();
-	//papyrus->Register(Papyrus::Bind);
+	auto papyrus = F4SE::GetPapyrusInterface();
+	papyrus->Register(Papyrus::Bind);
 
 	return true;
 }

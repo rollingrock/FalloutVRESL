@@ -4,6 +4,7 @@ set(headers ${headers}
 	src/Util.h
 	src/eslhooks.h
 	src/hooks.h
+	src/Papyrus.h
 	src/Settings.h
 	src/tesfilehooks.h
 	src/f4sevrhooks.h
