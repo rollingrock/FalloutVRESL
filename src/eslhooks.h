@@ -488,18 +488,18 @@ namespace eslhooks
 		{
 			static inline REL::Relocation<std::uintptr_t> target{ REL::Offset(0x05fdee0) };  // Skyrim 0x39D660
 
-			static void thunk(char* const buffer, const size_t a_size, const char* a_format, char a_unk[], RE::FormID a_formID, int a_unk2)
+			static void thunk(char* const buffer, const size_t a_size, const char* a_format, RE::FormID a_formID)
 			{
 				auto file = RE::TESForm::GetFormByID(a_formID)->GetFile(0);
 				auto formID = file->IsLight() ? a_formID & 0xFFF : a_formID & 0xFFFFFF;
-				return func(buffer, a_size, a_format, a_unk, formID, a_unk2);
+				return func(buffer, a_size, a_format, formID);
 			}
 
 			static inline REL::Relocation<decltype(thunk)> func;
 
 			static void Install()
 			{
-				REL::safe_fill(target.address() + 0x8B, REL::NOP, 0x5);  // Erase truncation of plugin index on formID
+				REL::safe_fill(target.address() + 0x8B, REL::NOP, 0x7);  // Erase truncation of plugin index on formID
 				pstl::write_thunk_call<UnkTopicHook2>(target.address() + 0x92);
 				logger::info("UnkTopicHook2 hooked at {:x}", target.address() + 0x92);
 				logger::info("UnkTopicHook2 hooked at offset {:x}", target.offset() + 0x92);

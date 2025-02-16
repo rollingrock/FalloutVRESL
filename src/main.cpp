@@ -104,7 +104,7 @@ void InitializeLog()
 	*path /= fmt::format("{}.log"sv, "FalloutVRESL"sv);
 	auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
 
-	const auto level = spdlog::level::debug;
+	const auto level = spdlog::level::info;
 
 	auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
 	log->set_level(level);

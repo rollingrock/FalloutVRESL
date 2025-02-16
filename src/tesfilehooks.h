@@ -295,8 +295,10 @@ namespace tesfilehooks
 
 	struct UnkHook
 	{
+		// Using this hook to patch uses of GetModAtIndex
 		static inline REL::Relocation<std::uintptr_t> target{ REL::Offset(0x017f700) };  // 0x1B9E60
 		static inline REL::Relocation<std::uintptr_t> target2{ REL::Offset(0x017f4d0) };  // 0x1b9c50
+		static inline REL::Relocation<std::uintptr_t> target3{ REL::Offset(0x05fdee0) };  
 
 		static std::uint64_t thunk(RE::FormID a_formID)
 		{
@@ -331,6 +333,10 @@ namespace tesfilehooks
 			start = target2.address() + 0x47;
 			end = target2.address() + 0x4A;
 			REL::safe_fill(start, REL::NOP, end - start);
+
+			start = target3.address() + 0xDD;
+			end = target3.address() + 0xE0;
+			REL::safe_fill(start, REL::NOP, end - start);
 		}
 
 		static void InstallThunkUnk()
@@ -341,10 +347,9 @@ namespace tesfilehooks
 
 		static void InstallGetFileFromFormID()
 		{
-			//F4SE::AllocTrampoline(14);
 			F4SE::GetTrampoline().write_call<5>(target.address() + 0x71, GetFileFromFormID);
-			//F4SE::AllocTrampoline(14);
 			F4SE::GetTrampoline().write_call<5>(target2.address() + 0x66, GetFileFromFormID);
+			F4SE::GetTrampoline().write_call<5>(target3.address() + 0xE0, GetFileFromFormID);
 		}
 
 		static void Install()

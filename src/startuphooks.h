@@ -21,30 +21,27 @@ namespace startuphooks
 	{
 		logger::debug("AddFile invoked {} {:x}", std::string(a_file->filename), a_file->compileIndex);
 		auto handler = DataHandler::GetSingleton();
-		logger::info("1");
 		auto& fileCollection = handler->compiledFileCollection;
-		logger::info("2");
 		if (!a_file->IsLight() && HasFile(fileCollection.files, a_file)) {
 			return;
 		} else if (a_file->IsLight() && HasFile(fileCollection.smallFiles, a_file)) {
 			return;
 		}
-		logger::info("3");
 
 		if (!a_file->IsLight()) {
+			logger::debug("Adding {} to loadedMods", a_file->filename);
 			handler->loadedMods[handler->loadedModCount] = a_file;
 			handler->loadedModCount++;
 		}
-		logger::info("4");
 
 		if (isOverlay(a_file)) {
 			logger::debug("Adding {} as an overlay plugin", a_file->filename);
 			fileCollection.overlayFiles.push_back(a_file);
 			return;
 		}
-		logger::info("5");
 
 		if (a_file->IsLight()) {
+			logger::debug("Adding {} as a light plugin", a_file->filename);
 			fileCollection.smallFiles.push_back(a_file);
 			auto smallFileCompileIndex = fileCollection.smallFiles.size() - 1;
 			auto ul = reinterpret_cast<std::uint32_t*>(&a_file->flags);
@@ -59,6 +56,7 @@ namespace startuphooks
 				stl::report_and_fail(msg);
 			}
 		} else {
+			logger::debug("Adding {} as a regular plugin", a_file->filename);
 			fileCollection.files.push_back(a_file);
 			auto fileCompileIndex = fileCollection.files.size() - 1;
 			auto ul = reinterpret_cast<std::uint32_t*>(&a_file->flags);
