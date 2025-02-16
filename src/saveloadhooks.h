@@ -24,7 +24,7 @@ namespace saveloadhooks
 			REL::Relocation<std::uintptr_t> target{ REL::Offset(0x0d38160) };
 			REL::safe_fill(target.address() + 0xC2, REL::NOP, 0x7);
 			byte newSaveVersion[5] = { 0xB8, 0x44, 0x00, 0x00, 0x00 };  // mov rax, 68
-			REL::safe_write(target.address() + 0xBA, newSaveVersion, 0x5);
+			REL::safe_write(target.address() + 0xC2, newSaveVersion, 0x5);
 		}
 
 		static void Install()
@@ -53,7 +53,7 @@ namespace saveloadhooks
 		static void saveUnk(RE::BGSSaveGameBuffer* a_buffer, Win32FileType* a_unk)
 		{
 			using func_t = decltype(&saveUnk);
-			REL::Relocation<func_t> func{ REL::Offset(0x0d53fe0) };  // 0x5A0F00
+			REL::Relocation<func_t> func{ REL::Offset(0x0d53f20) };  // 0x5A0F00
 			return func(a_buffer, a_unk);
 		}
 
@@ -114,7 +114,7 @@ namespace saveloadhooks
 			return func(a_buffer, a_unk);
 		}
 
-		static void BGSLoadGameBufferReadString(RE::BGSLoadGameBuffer* a_buffer, char a_string[])
+		static void BGSLoadGameBufferReadString(RE::BGSLoadGameBuffer* a_buffer, char* a_string)
 		{
 			using func_t = decltype(&BGSLoadGameBufferReadString);
 			REL::Relocation<func_t> func{ REL::Offset(0x0d51200) };  // Skyrim 0x59F1E0
