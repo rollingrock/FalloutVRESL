@@ -5,7 +5,7 @@ using namespace RE;
 
 DataHandler* DataHandler::GetSingleton()
 {
-	return reinterpret_cast<DataHandler*>(RE::TESDataHandler::GetSingleton());
+	return reinterpret_cast<DataHandler*>(RE::TESDataHandler::GetSingleton(false));
 }
 
 struct DataHandlerCTORHook

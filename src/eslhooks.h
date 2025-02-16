@@ -33,6 +33,9 @@ namespace eslhooks
 				sub(rsp, 0x20);
 				call(ptr[rip + funcLabel]);
 				add(rsp, 0x20);
+				mov(r13, ptr[rsp + 0x40]);
+				mov(rsi, ptr[rsp + 0x48]);
+				mov(rbp, ptr[rsp + 0x88]);
 				mov(rcx, jmpAfterCall);
 				jmp(rcx);
 				L(funcLabel);
