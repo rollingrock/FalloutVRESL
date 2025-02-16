@@ -103,7 +103,7 @@ namespace tesfilehooks
 
 	struct UnkCOCHook
 	{
-		static inline REL::Relocation<std::uintptr_t> target{ REL::Offset(0x17C000) };
+		static inline REL::Relocation<std::uintptr_t> target{ REL::Offset(0x011acc0) };  // Skyrim 0x17c000
 
 		static inline std::uint32_t fileIndexCount = 0;
 
@@ -178,7 +178,6 @@ namespace tesfilehooks
 			return nullptr;
 		}
 
-		// TODO : this loop doesn't seem to exist or is implemented different in fallout so not using for now
 		static void SkipLoadedModsOptimizedLoopCheck()
 		{
 			// The loop only does logic on `loadedMods` if a single file is "optimized"
@@ -186,16 +185,16 @@ namespace tesfilehooks
 			// NOP all the logic
 
 			// TODO: We should properly handle "optmized" TESFile cases
-			std::uintptr_t start = target.address() + 0x9E;
-			std::uintptr_t end = target.address() + 0x16D;
+			std::uintptr_t start = target.address() + 0xE4;  // 0x93
+			std::uintptr_t end = target.address() + 0x127;   // 0x16d
 			REL::safe_fill(start, REL::NOP, end - start);
 		}
 
 		static void InstallFileOpenLoop()
 		{
-			std::uintptr_t start = target.address() + 0x197;  // 0x173
-			std::uintptr_t end = target.address() + 0x1E9;    // 0x1a8
-			std::uintptr_t failJmp = target.address() + 0x399; // 0x439
+			std::uintptr_t start = target.address() + 0x127;  // 0x173
+			std::uintptr_t end = target.address() + 0x212;    // 0x1a8
+			std::uintptr_t failJmp = target.address() + 0x420; // 0x439
 			REL::safe_fill(start, REL::NOP, end - start);
 
 			auto trampolineJmp = TrampolineCOCCall(end, failJmp, stl::unrestricted_cast<std::uintptr_t>(OpenFileLoop));
@@ -208,10 +207,10 @@ namespace tesfilehooks
 
 		static void InstallFailOpenFileLoop()
 		{
-			std::uintptr_t start = target.address() + 0x399;   // 0x439
-			std::uintptr_t end = target.address() + 0x3AA;    // 0x44c
-			std::uintptr_t failJmp = target.address() + 0x3AA;  // 0x44c
-			std::uintptr_t succJmp = target.address() + 0x197;  // 0x173
+			std::uintptr_t start = target.address() + 0x420;   // 0x439
+			std::uintptr_t end = target.address() + 0x43D;    // 0x44c
+			std::uintptr_t failJmp = target.address() + 0x43D;  // 0x44c
+			std::uintptr_t succJmp = target.address() + 0x127;  // 0x173
 			REL::safe_fill(start, REL::NOP, end - start);
 
 			auto trampolineJmp = TrampolineFailCOCCall(succJmp, failJmp, stl::unrestricted_cast<std::uintptr_t>(IndexCheck));
@@ -224,7 +223,7 @@ namespace tesfilehooks
 
 		static void Install()
 		{
-		//	SkipLoadedModsOptimizedLoopCheck();  // TODO: seems to not exist in fallout so not using for now
+			SkipLoadedModsOptimizedLoopCheck();   // logic is different in fallout so skipping as not sure if even needed
 			InstallFileOpenLoop();
 			InstallFailOpenFileLoop();
 		}
