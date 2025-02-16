@@ -147,31 +147,31 @@ namespace Papyrus
 			return false;
 		}
 
-		logger::info("Overriding SKSEVR functions..."sv);
+		logger::info("Overriding F4SEVR functions..."sv);
 
-		BIND(GetModByName, true);
+		//BIND(GetModByName, true);
 
-		logger::info("Registered GetModByName"sv);
+		//logger::info("Registered GetModByName"sv);
 
-		BIND(GetModName, true);
+		//BIND(GetModName, true);
 
-		logger::info("Registered GetModName"sv);
+		//logger::info("Registered GetModName"sv);
 
-		BIND(GetModAuthor, true);
+		//BIND(GetModAuthor, true);
 
-		logger::info("Registered GetModAuthor"sv);
+		//logger::info("Registered GetModAuthor"sv);
 
-		BIND(GetModDescription, true);
+		//BIND(GetModDescription, true);
 
-		logger::info("Registered GetModDescription"sv);
+		//logger::info("Registered GetModDescription"sv);
 
-		BIND(GetModDependencyCount, true);
+		//BIND(GetModDependencyCount, true);
 
-		logger::info("Registered GetModDependencyCount"sv);
+		//logger::info("Registered GetModDependencyCount"sv);
 
-		BIND(GetNthModDependency, true);
+		//BIND(GetNthModDependency, true);
 
-		logger::info("Registered GetNthModDependency"sv);
+		//logger::info("Registered GetNthModDependency"sv);
 
 		BIND(GetLightModCount, true);
 

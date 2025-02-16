@@ -85,7 +85,7 @@ void F4SEAPI MessageHandler(F4SE::MessagingInterface::Message* a_message)
 				}
 			}
 			lock.get().unlock_read();
-			TestGetCompiledFileCollectionExtern();
+//			TestGetCompiledFileCollectionExtern();
 		}
 	default:
 		break;
@@ -104,11 +104,11 @@ void InitializeLog()
 	*path /= fmt::format("{}.log"sv, "FalloutVRESL"sv);
 	auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
 
-	const auto level = spdlog::level::info;
+	auto settings = Settings::GetSingleton();
 
 	auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
-	log->set_level(level);
-	log->flush_on(level);
+	log->set_level(settings->settings.logLevel);
+	log->flush_on(settings->settings.flushLevel);
 
 	spdlog::set_default_logger(std::move(log));
 	spdlog::set_pattern("[%Y-%m-%d %T.%e][%-16s:%-4#][%L]: %v"s);
