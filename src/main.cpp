@@ -1,7 +1,7 @@
 #include "DataHandler.h"
 #include "Papyrus.h"
 #include "Settings.h"
-//#include "SkyrimVRESLAPI.h"
+#include "FalloutVRESLAPI.h"
 #include "eslhooks.h"
 #include "hooks.h"
 #include "saveloadhooks.h"
@@ -11,16 +11,16 @@
 
 int GetMaxStdio()
 {
-	const HMODULE crtStdioModule = GetModuleHandleA("API-MS-WIN-CRT-STDIO-L1-1-0.DLL");
+	const auto crtStdioModule = REX::W32::GetModuleHandleW(REL::Module::IsNG() ? L"api-ms-win-crt-runtime-l1-1-0.dll" : L"msvcr110.dll");
 
 	if (!crtStdioModule) {
 		logger::critical("crt stdio module not found, failed to check stdio patch");
 		return 0;
 	}
 
-	const auto maxStdio = reinterpret_cast<decltype(&_getmaxstdio)>(GetProcAddress(crtStdioModule, "_getmaxstdio"))();
-
-	return maxStdio;
+	const auto maxStdio = reinterpret_cast<decltype(&_getmaxstdio)>(REX::W32::GetProcAddress(crtStdioModule, "_getmaxstdio"));
+	const auto result = maxStdio();
+	return result;
 }
 
 void AllocTrampoline()
@@ -36,15 +36,16 @@ void F4SEAPI MessageHandler(F4SE::MessagingInterface::Message* a_message)
 	switch (a_message->type) {
 	case F4SE::MessagingInterface::kPostPostLoad:
 		{  // Called after all plugins have finished running
-			// SKSEPlugin_Load.
+			// F4SEPlugin_Load.
 			// It is now safe to do multithreaded operations, or operations against other plugins.
-			//if (F4SE::GetMessagingInterface()->RegisterListener(nullptr, SkyrimVRESLPluginAPI::ModMessageHandler))
-			//	logger::info("Successfully registered SKSE listener {} with buildnumber {}",
-			//		SkyrimVRESLPluginAPI::SkyrimVRESLPluginName, g_interface001.GetBuildNumber());
-			//else
-			//	logger::info("Unable to register SKSE listener");
-
 			logger::info("kPostPostLoad");
+			F4SE::stl::zstring svNull(nullptr, 0);
+			if (F4SE::GetMessagingInterface()->RegisterListener(FalloutVRESLPluginAPI::ModMessageHandler, svNull))
+				logger::info("Successfully registered F4SE listener {} with buildnumber {}",
+					FalloutVRESLPluginAPI::FalloutVRESLPluginName, g_interface001.GetBuildNumber());
+			else
+				logger::info("Unable to register F4SE listener");
+
 			if (GetMaxStdio() < 2048)
 				logger::warn("Required Buffout MaxStdio patch not detected. FalloutVR will hang if you have more than {} plugins installed in /Data--even if inactive!", GetMaxStdio());
 			break;

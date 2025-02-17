@@ -7,7 +7,7 @@
 #include "RE/NetImmerse/NiTArray.h"
 #include "RE/NetImmerse/NiTList.h"
 #include "RE/Bethesda/TESForms.h"
-//#include "SkyrimVRESLAPI.h"
+#include "FalloutVRESLAPI.h"
 #include <detours/detours.h>
 
 using namespace RE;
@@ -97,23 +97,23 @@ static_assert(offsetof(DataHandler, compiledFileCollection) == 0x17f0);
 #endif
 
 
-//namespace SkyrimVRESLPluginAPI
-//{
-//	// Handles skse mod messages requesting to fetch API functions from SkyrimVRESL
-//	void ModMessageHandler(SKSE::MessagingInterface::Message* message);
-//
-//	// This object provides access to SkyrimVRESL's mod support API version 1
-//	struct SkyrimVRESLInterface001 : ISkyrimVRESLInterface001
-//	{
-//		virtual unsigned int GetBuildNumber();
-//
-//		/// @brief Get the SSE compatible TESFileCollection for SkyrimVR.
-//		/// @return Pointer to CompiledFileCollection.
-//		const RE::TESFileCollection* GetCompiledFileCollection();
-//	};
-//
-//}  // namespace SkyrimVRESLPluginAPI
-//extern SkyrimVRESLPluginAPI::SkyrimVRESLInterface001 g_interface001;
+namespace FalloutVRESLPluginAPI
+{
+	// Handles skse mod messages requesting to fetch API functions from FalloutVRESL
+	void ModMessageHandler(F4SE::MessagingInterface::Message* message);
+
+	// This object provides access to FalloutVRESL's mod support API version 1
+	struct FalloutVRESLInterface001 : IFalloutVRESLInterface001
+	{
+		virtual unsigned int GetBuildNumber();
+
+		/// @brief Get the NG compatible TESFileCollection for FalloutVR.
+		/// @return Pointer to CompiledFileCollection.
+		const RE::TESFileCollection* GetCompiledFileCollection();
+	};
+
+}  // namespace FalloutVRESLPluginAPI
+extern FalloutVRESLPluginAPI::FalloutVRESLInterface001 g_interface001;
 
 // Function that tests GetCompiledFileCollectionExtern() and prints to log.
 // This is also an example of how to use GetHandle and GetProc

@@ -3,6 +3,7 @@ set(headers ${headers}
 	src/DataHandler.h
 	src/Util.h
 	src/eslhooks.h
+	src/FalloutVRESLAPI.h
 	src/hooks.h
 	src/Papyrus.h
 	src/Settings.h
