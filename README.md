@@ -2,9 +2,6 @@
 
 Adds ESL support to FalloutVR.  This is a fork of [NightFallStorm's Skyrim project](https://github.com/Nightfallstorm/SkyrimVRESL).   
 
-## NOTE THIS IS JUST STARTING SO BELOW IS NOT UPDATED AND A LOT OF WORK LEFT TO DO
-
-
 ## Requirements
 
 - [CMake](https://cmake.org/)
