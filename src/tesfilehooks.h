@@ -299,6 +299,7 @@ namespace tesfilehooks
 		static inline REL::Relocation<std::uintptr_t> target{ REL::Offset(0x017f700) };  // 0x1B9E60
 		static inline REL::Relocation<std::uintptr_t> target2{ REL::Offset(0x017f4d0) };  // 0x1b9c50
 		static inline REL::Relocation<std::uintptr_t> target3{ REL::Offset(0x05fdee0) };  
+		static inline REL::Relocation<std::uintptr_t> target4{ REL::Offset(0x0c09e80) };  
 
 		static std::uint64_t thunk(RE::FormID a_formID)
 		{
@@ -337,6 +338,10 @@ namespace tesfilehooks
 			start = target3.address() + 0xDD;
 			end = target3.address() + 0xE0;
 			REL::safe_fill(start, REL::NOP, end - start);
+
+			start = target4.address() + 0xB4;
+			end = target4.address() + 0xB7;
+			REL::safe_fill(start, REL::NOP, end - start);
 		}
 
 		static void InstallThunkUnk()
@@ -350,6 +355,7 @@ namespace tesfilehooks
 			F4SE::GetTrampoline().write_call<5>(target.address() + 0x71, GetFileFromFormID);
 			F4SE::GetTrampoline().write_call<5>(target2.address() + 0x66, GetFileFromFormID);
 			F4SE::GetTrampoline().write_call<5>(target3.address() + 0xE0, GetFileFromFormID);
+			F4SE::GetTrampoline().write_call<5>(target4.address() + 0xB7, GetFileFromFormID);
 		}
 
 		static void Install()
